@@ -57,15 +57,13 @@ public class ProductDetailsWindow extends JWindow implements ParentWindow {
 		initializeWindow();
 		defineMainPanel();
 		getContentPane().add(mainPanel);
-		
-		//pack();
-			
 	}
+	
 	private void initializeWindow() {
 		setSize(GuiControl.SCREEN_WIDTH,GuiControl.SCREEN_HEIGHT);		
-		GuiControl.centerFrameOnDesktop(this);
-		
+		GuiControl.centerFrameOnDesktop(this);		
 	}
+	
 	private void defineMainPanel() {
 		mainPanel = new JPanel();
 		mainPanel.setLayout(new BorderLayout());
@@ -79,6 +77,7 @@ public class ProductDetailsWindow extends JWindow implements ParentWindow {
 		mainPanel.add(lowerSubpanel,BorderLayout.SOUTH);
 			
 	}
+	
 	private JPanel leftPaddedPanel(JLabel label) {
 		JPanel paddedPanel = new JPanel();
 		paddedPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -87,9 +86,6 @@ public class ProductDetailsWindow extends JWindow implements ParentWindow {
 		paddedPanel.setBackground(GuiControl.SCREEN_BACKGROUND);
 		return paddedPanel;		
 	}
-
-		
-	
 	
 	private void defineUpperPanel() {
 		upperSubpanel = new JPanel();
@@ -121,8 +117,7 @@ public class ProductDetailsWindow extends JWindow implements ParentWindow {
 		//load up the gridPanel
 		JLabel itemLabel = new JLabel(ITEM);
 		paddedPanel = leftPaddedPanel(itemLabel);
-		gridPanel.add(paddedPanel);
-		
+		gridPanel.add(paddedPanel);	
 		
 		JTextArea itemValue = new JTextArea(3,20);
 		itemValue.setText(item);
@@ -165,8 +160,7 @@ public class ProductDetailsWindow extends JWindow implements ParentWindow {
 		//browse button
         
 		JButton addToCardButton = new JButton(ADD_TO_CART);
-		addToCardButton.addActionListener(new AddToCartListener());
-		
+		addToCardButton.addActionListener(new AddToCartListener());		
 		
 		//back button
 		JButton backToCatalogButton = new JButton(BACK_TO_CATALOG);

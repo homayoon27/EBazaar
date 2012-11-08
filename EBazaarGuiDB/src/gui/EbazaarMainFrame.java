@@ -110,7 +110,7 @@ public class EbazaarMainFrame extends javax.swing.JFrame {
 
 
 	static public void main(String args[]) {
-	
+		homayoon.DBLocator.SetLocalDB();
 	    new EbazaarMainFrame();
 
 	}

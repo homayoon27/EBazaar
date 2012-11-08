@@ -64,13 +64,13 @@ public class ViewOrderDetailsWindow extends JWindow implements ParentWindow {
 	JPanel upper, middle, lower;
 	
 	//constants
-	private final boolean USE_DEFAULT_DATA = true;
+	private final boolean USE_DEFAULT_DATA = false;
 
+    private final String MAIN_LABEL = "Order Detail";
     private final String ITEM = "Product";
     private final String QUANTITY = "Quantity";
     private final String UNIT_PRICE = "Unit Price";
     private final String TOTAL = "Total Price";
-    private final String MAIN_LABEL = "Order Detail";
     
     //button labels
     private final String OK_BUTN = "OK";
@@ -82,24 +82,18 @@ public class ViewOrderDetailsWindow extends JWindow implements ParentWindow {
 
     //these numbers specify relative widths of the columns -- they  must add up to 1
     private final float [] COL_WIDTH_PROPORTIONS =
-    	{0.4f, 0.2f, 0.2f, 0.2f};
-
-    	
+    	{0.4f, 0.2f, 0.2f, 0.2f};    	
     	
 	public ViewOrderDetailsWindow(String orderId) {
 		this.orderId = orderId;
 		initializeWindow();
 		defineMainPanel();
-		getContentPane().add(mainPanel);
-		
-		
-			
+		getContentPane().add(mainPanel);			
 	}
 	private void initializeWindow() {
 		
 		setSize(GuiControl.SCREEN_WIDTH,GuiControl.SCREEN_HEIGHT);		
-		GuiControl.centerFrameOnDesktop(this);
-		
+		GuiControl.centerFrameOnDesktop(this);		
 	}
 	
 	private void defineMainPanel() {
@@ -112,11 +106,10 @@ public class ViewOrderDetailsWindow extends JWindow implements ParentWindow {
 		defineLowerPanel();
 		mainPanel.add(upper,BorderLayout.NORTH);
 		mainPanel.add(middle,BorderLayout.CENTER);
-		mainPanel.add(lower,BorderLayout.SOUTH);
-			
+		mainPanel.add(lower,BorderLayout.SOUTH);			
 	}
 	//label
-	public void defineUpperPanel(){
+	public void defineUpperPanel() {
 		upper = new JPanel();
 		upper.setBackground(GuiControl.FILLER_COLOR);
 		upper.setLayout(new FlowLayout(FlowLayout.CENTER));
@@ -159,8 +152,7 @@ public class ViewOrderDetailsWindow extends JWindow implements ParentWindow {
 	}
 	public void updateModel(List<String[]> list){
 		if(model == null) {
-	        model = new CustomTableModel();
-    	    
+	        model = new CustomTableModel();   	    
 		}
 		model.setTableValues(list);		
 	}
@@ -175,45 +167,46 @@ public class ViewOrderDetailsWindow extends JWindow implements ParentWindow {
 	 * controller.
 	 */
 	private void updateModel() {
-		List<String[]> theData = new ArrayList<String[]>();
+		List<String[]> theData;// = new ArrayList<String[]>();
         if(USE_DEFAULT_DATA) {
+        	theData = new ArrayList<String[]>();
 			DefaultData dd = DefaultData.getInstance();
 			theData = dd.getViewOrderDetailsDefaultData();
         }
-        //IMPLEMENT
+        // homayoon @Nov.7 2012
         else {
-        	Connection con = null;
-        	Statement stmt = null;
-        	String dburl = "jdbc:mysql:///AccountsDb";
-    		try{
-    			con = DriverManager.getConnection(dburl, "root", "");
+        	theData = new LinkedList<String[]>();
+        	Connection con = homayoon.DBLocator.GetAccountsDbConnection();
+    		try {
+    			Statement stmt = con.createStatement();
+    			String SQLSt = "SELECT productid,quantity,totalprice FROM OrderItem"
+    							+ " WHERE orderid=" + this.orderId;
+    			System.out.println(SQLSt);
+    			ResultSet rs = stmt.executeQuery(SQLSt);
+    			while (rs.next()){
+    				String pname = getProdNameForId(rs.getString("productid"));
+    				String pqty = rs.getString("quantity");
+    				String totalprice = rs.getString("totalprice");
+    				String unitprice = String.valueOf(Integer.valueOf(totalprice)/Integer.valueOf(pqty));
+    				
+    				theData.add(new String[]{pname, pqty, unitprice, totalprice});
+    			}
+    	
+    			stmt.close();
+    			con.close();
     		}
-    		catch(SQLException e){
-    			System.out.println(e.getMessage());
-    			e.printStackTrace();
+    		catch(SQLException s){
+    			s.printStackTrace();
     		}
-    		theData = new LinkedList<String[]>();
-    		//now load up theData by performing a query on OrderItem and making
-    		//use of the method getProdNameForId
-    		
-        	
-        }
+         }
 		updateModel(theData);
  	}
+	
 	String getProdNameForId(String prodId){
-    	Connection con = null;
-    	Statement stmt = null;
+    	Connection con=homayoon.DBLocator.GetProductsDbConnection();;
     	String name = null;
-    	String dburl = "jdbc:mysql:///ProductsDb";
-		try{
-			con = DriverManager.getConnection(dburl, "root", "");
-		}
-		catch(SQLException e){
-			System.out.println(e.getMessage());
-			e.printStackTrace();
-		}
 		try {
-			stmt = con.createStatement();
+			Statement stmt = con.createStatement();
 			//first find the catalog id
 			ResultSet rs = stmt.executeQuery("SELECT productname FROM Product WHERE productid = '"+prodId+"'");
 			if(rs.next()){
@@ -225,14 +218,13 @@ public class ViewOrderDetailsWindow extends JWindow implements ParentWindow {
 		}
 		return name;
 	}
-	
 
     private void updateTable() {
-        
-        table.setModel(model);
-        table.updateUI();
-        repaint();
-        
+        if (table != null) {
+        	table.setModel(model);
+        	table.updateUI();
+        	repaint();
+        }
     }	
 	
 	public void setParentWindow(Window parentWindow) {

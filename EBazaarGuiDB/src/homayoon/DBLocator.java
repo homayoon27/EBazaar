@@ -15,7 +15,7 @@ import java.sql.Statement;
 public class DBLocator {
 	public static boolean remoteDB=true;
 	public static final String PRODUCTSDB_URL = "jdbc:mysql://localhost/ProductsDb";
-	public static final String ACCOUNTSDB_URL = "jdbc:mysql://localhost/AccountDb";
+	public static final String ACCOUNTSDB_URL = "jdbc:mysql://localhost/AccountsDb";
 	public static final String REMOTE_PRODUCTSDB_URL = "jdbc:mysql://50.56.188.144:3306/ProductsDb";
 	public static final String REMOTE_ACCOUNTSDB_URL = "jdbc:mysql://50.56.188.144:3306/AccountsDb";
 	public static final String DB_USERNAME = "root";

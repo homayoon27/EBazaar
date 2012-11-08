@@ -140,7 +140,8 @@ public class SelectOrderWindow extends JWindow implements ParentWindow {
 	        model = new CustomTableModel();    	    
 		}
 		
-		model.setTableValues(list);		
+		model.setTableValues(list);	
+		//updateTable();
 	}
 	
 	/**
@@ -171,14 +172,14 @@ public class SelectOrderWindow extends JWindow implements ParentWindow {
 		updateModel(theData);
  	}	
 	
-	//IMPLEMENT
+	//homayoon @Nov.7
 	private List<Integer> getAllOrderIds(Integer custId){
 		List<Integer> allIds = new ArrayList<Integer>();
     	Connection con = homayoon.DBLocator.GetAccountsDbConnection();
 		try {
 			Statement stmt = con.createStatement();
-			String SQLSt = "SELECT orderid,orderdate,totalamountcharge FROM Ord"
-							+ " WHERE custid=\'" + Integer.toString(custId) + "\'";
+			String SQLSt = "SELECT orderid FROM Ord"
+							+ " WHERE custid=" + Integer.toString(custId);
 			
 			ResultSet rs = stmt.executeQuery(SQLSt);
 			while (rs.next()){
@@ -192,22 +193,31 @@ public class SelectOrderWindow extends JWindow implements ParentWindow {
 			s.printStackTrace();
 		}
 		
-		//now populate this list with all order ids that
-		//are associated with this custId in the Order table
- 
 		return allIds;
-			
 	}
 	
-	//IMPLEMENT
+	//homayoon @Nov.7
 	private String[] getOrderData(Integer orderId){
 		
 		String[] orderData = new String[3];
-		//write code here that populates this 3-element string array
-		//with the appropriate order info for this orderId:
-		//          orderid, orderdate, totalpriceamount
-		//orderid will need to be converted to a String
-		
+    	Connection con = homayoon.DBLocator.GetAccountsDbConnection();
+		try {
+			Statement stmt = con.createStatement();
+			String SQLSt = "SELECT orderid,orderdate,totalpriceamount FROM Ord"
+							+ " WHERE orderid=" + Integer.toString(orderId);
+			System.out.println(SQLSt);
+			ResultSet rs = stmt.executeQuery(SQLSt);
+			if (rs.next()){
+				orderData = new String[]{rs.getString("orderid"),rs.getString("orderdate")
+						                ,rs.getString("totalpriceamount"), };
+			}
+	
+			stmt.close();
+			con.close();
+		}
+		catch(SQLException s){
+			s.printStackTrace();
+		}
 		
 		return orderData;
 	}		
