@@ -181,14 +181,12 @@ public class ViewOrderDetailsWindow extends JWindow implements ParentWindow {
     			Statement stmt = con.createStatement();
     			String SQLSt = "SELECT productid,quantity,totalprice FROM OrderItem"
     							+ " WHERE orderid=" + this.orderId;
-    			System.out.println(SQLSt);
     			ResultSet rs = stmt.executeQuery(SQLSt);
     			while (rs.next()){
     				String pname = getProdNameForId(rs.getString("productid"));
     				String pqty = rs.getString("quantity");
     				String totalprice = rs.getString("totalprice");
-    				String unitprice = String.valueOf(Integer.valueOf(totalprice)/Integer.valueOf(pqty));
-    				
+    				String unitprice = String.valueOf(Integer.valueOf(totalprice)/Integer.valueOf(pqty)); 				
     				theData.add(new String[]{pname, pqty, unitprice, totalprice});
     			}
     	
