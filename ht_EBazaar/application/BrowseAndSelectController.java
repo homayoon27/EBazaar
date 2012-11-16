@@ -222,6 +222,7 @@ public class BrowseAndSelectController implements CleanupControl {
 			DbClassQuantity dbQty = new DbClassQuantity();
 			Quantity qty = new Quantity(quantityWindow.getQuantityDesired());
 			dbQty.setQuantity(qty);
+			boolean err = false;
 			try {
 	            dbQty.readQuantityAvail(productDetailsWindow.getItem());
 	            System.out.println(qty.getQuantityAvailable());
@@ -236,29 +237,23 @@ public class BrowseAndSelectController implements CleanupControl {
 			} catch (RuleException re) {
 				String errMsg = "Rules dosn't match: " + re.getMessage();
 				JOptionPane.showMessageDialog(quantityWindow, errMsg, "Error",
-						JOptionPane.ERROR_MESSAGE);					
+						JOptionPane.ERROR_MESSAGE);	
+				err = true;
 			} catch (EBazaarException ee) {
 				String errMsg = "EBazaar exception: " + ee.getMessage();
 				JOptionPane.showMessageDialog(quantityWindow, errMsg, "Error",
 						JOptionPane.ERROR_MESSAGE);					
 			}
-				// professor hint. @Nov.
-				// gather quantity data
-				// ... read quantity requested from window
-				// --create instance of Quantity
-				// ... read quantity avail from database
-				// -- uses DbClassQuantity
-				// use populateEntity of DbClassQuantity
-				// to populate the value quantityAvail
-				// in Quantity
-				//
-				// IRules rules = new RulesQuantity(quantity);
-				// rules.runRules();
-			
-			quantityWindow.dispose();
-			cartItemsWindow = new CartItemsWindow();
-			EbazaarMainFrame.getInstance().getDesktop().add(cartItemsWindow);
-			cartItemsWindow.setVisible(true);
+			finally {
+				if (err)
+					quantityWindow.setVisible(true);
+				else {
+					quantityWindow.dispose();
+					cartItemsWindow = new CartItemsWindow();
+					EbazaarMainFrame.getInstance().getDesktop().add(cartItemsWindow);
+					cartItemsWindow.setVisible(true);
+				}
+			}
 		}
 	}
 
