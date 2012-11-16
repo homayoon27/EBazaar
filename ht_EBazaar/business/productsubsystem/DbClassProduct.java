@@ -24,6 +24,7 @@ import middleware.externalinterfaces.DbConfigKey;
 class DbClassProduct implements IDbClass {
 	private static final Logger LOG = Logger.getLogger(DbClassProduct.class
 			.getPackage().getName());
+	
 	private IDataAccessSubsystem dataAccessSS = new DataAccessSubsystemFacade();
 
 	/**
@@ -39,10 +40,14 @@ class DbClassProduct implements IDbClass {
 	private List<IProductFromDb> productList;
 	Integer catalogId;
 	Integer productId;
-
+	String productname;
+	String catName;
 	private final String LOAD_PROD_TABLE = "LoadProdTable";
 	private final String READ_PRODUCT = "ReadProduct";
 	private final String READ_PROD_LIST = "ReadProdList";
+	private static final String READ_PRODUCT_FROM_NAME = "ReadProduct";
+	private static final String READ_PROD_ID = "ReadProductId";
+	 
 	
 
 	public void buildQuery() {
@@ -52,8 +57,17 @@ class DbClassProduct implements IDbClass {
 			buildReadProductQuery();
 		} else if (queryType.equals(READ_PROD_LIST)) {
 			buildProdListQuery();
-		} 
+		} else if(queryType.equals(READ_PRODUCT_FROM_NAME)){
+			buildReadProductByNameQuery();
+		} else if(queryType.equals(READ_PROD_ID)){
+			buildReadProductByNameQuery();
+		}
 
+	}
+
+	private void buildReadProductByNameQuery() {
+		// TODO Auto-generated method stub
+		query = "SELECT * FROM Product WHERE productname = '" + productname + "'";	
 	}
 
 	private void buildProdTableQuery() {
@@ -67,7 +81,7 @@ class DbClassProduct implements IDbClass {
 	private void buildReadProductQuery() {
 		query = "SELECT * FROM Product WHERE productid = " + productId;
 	}
-
+	
 
 	public TwoKeyHashMap<Integer, String, IProductFromDb> readProductTable()
 			throws DatabaseException {
@@ -102,8 +116,9 @@ class DbClassProduct implements IDbClass {
 			throws DatabaseException {
 		this.catalogId = catalogId;
 		queryType = READ_PROD_LIST;
-		dataAccessSS.createConnection(this);
-		dataAccessSS.read();
+//		dataAccessSS.createConnection(this);
+//		dataAccessSS.read();
+		dataAccessSS.atomicRead(this);
 		return productList;
 	}
 
@@ -114,10 +129,24 @@ class DbClassProduct implements IDbClass {
 		}
 		queryType = READ_PRODUCT;
 		this.productId = productId;
-		dataAccessSS.createConnection(this);
-		dataAccessSS.read();
+//		dataAccessSS.createConnection(this);
+//		dataAccessSS.read();
+		dataAccessSS.atomicRead(this);
 		return product;
 	}
+	public IProductFromDb readProduct(String productName)
+	throws DatabaseException {
+    if (productTable != null && productTable.isASecondKey(productName)) {
+	return productTable.getValWithSecondKey(productName);
+    }
+     queryType = READ_PRODUCT_FROM_NAME;
+     this.productname = productName;
+//   dataAccessSS.createConnection(this);
+//   dataAccessSS.read();
+     dataAccessSS.atomicRead(this);
+     return product;
+   }
+
 
 	/**
 	 * Database columns: productid, productname, totalquantity, priceperunit,
@@ -135,12 +164,28 @@ class DbClassProduct implements IDbClass {
 			populateProduct(resultSet);
 		} else if (queryType.equals(READ_PROD_LIST)) {
 			populateProdList(resultSet);
-		}
+		}else if(queryType.equals(READ_PRODUCT_FROM_NAME)){
+			populateProduct(resultSet);
+	}else if(queryType.equals(READ_PROD_ID)){
+			populateProductId(resultSet);
 	}
+
+	}
+
+	private void populateProductId(ResultSet resultSet) {
+		try{
+			if(resultSet.next()){
+				productId=resultSet.getInt("productid");// TODO Auto-generated method stub
+			}
+		}catch(SQLException e){
+				e.printStackTrace();
+			}
+		}
+		
+	
 
 	private void populateProdList(ResultSet rs) throws DatabaseException {
 		productList = new LinkedList<IProductFromDb>();
-		/*
 		try {
 			IProductFromDb product = null;
 			Integer prodId = null;
@@ -164,7 +209,7 @@ class DbClassProduct implements IDbClass {
 			}
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
-		} */
+		}
 	}
 
 	/**
@@ -176,7 +221,16 @@ class DbClassProduct implements IDbClass {
 	}
 
 	private void populateProduct(ResultSet rs) throws DatabaseException {
-		product = new Product(1,"","","","",1,"");
+		try {
+			if (rs.next()) {
+				product = new Product(rs.getInt("productid"), rs.getString("productName"), rs.getString("totalQuantity"),
+						rs.getString("priceperunit"), rs.getString("mfgdate"), rs.getInt("catalogid"), rs.getString("description"));
+			}
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+		
+		//product = new Product(1,"","","","",1,"");
 	}
 
 	public String getDbUrl() {
@@ -187,4 +241,14 @@ class DbClassProduct implements IDbClass {
 	public String getQuery() {
 		return query;
 	}
+
+	public Integer getProductFromId(String prodName) throws DatabaseException {
+		// TODO Auto-generated method stub
+		this.productname=prodName;
+		queryType=READ_PROD_ID;
+	    dataAccessSS.atomicRead(this);
+		System.out.println("ProdId->" +productId);
+		return productId;
+	}
+
 }

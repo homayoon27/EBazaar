@@ -55,8 +55,9 @@ class DbClassAddress implements IDbClass {
 		//IMPLEMENTED
 		this.custProfile = custProfile;
 		queryType = READ_DEFAULT_BILL;
-		dataAccessSS.createConnection(this);
-		dataAccessSS.read();
+		dataAccessSS.atomicRead(this);
+		//dataAccessSS.createConnection(this);
+		//dataAccessSS.read();
 	}
 
 	void readAllAddresses(ICustomerProfile custProfile)
@@ -64,8 +65,9 @@ class DbClassAddress implements IDbClass {
 		// IMPLEMENTED
 		this.custProfile = custProfile;
 		queryType = READ;
-		dataAccessSS.createConnection(this);
-		dataAccessSS.read();
+		dataAccessSS.atomicRead(this);
+		//dataAccessSS.createConnection(this);
+		//dataAccessSS.read();
 	}
 
 	public void buildQuery() throws DatabaseException {

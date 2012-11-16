@@ -49,5 +49,7 @@ public interface IProductSubsystem {
 	/** checks for valid quantity */
       public void runQuantityRules(Quantity quantity) throws RuleException, EBazaarException;
 
+	Integer getCatalogIdFromName(String catName) throws DatabaseException;
+
 	
 }

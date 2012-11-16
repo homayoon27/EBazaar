@@ -47,8 +47,9 @@ public class DbClassCustomer implements IDbClass{
 			throws DatabaseException {
 		custID = id;
 		queryType = READ;
-		dataAccessSS.createConnection(this);
-		dataAccessSS.read();	
+		dataAccessSS.atomicRead(this);
+//		dataAccessSS.createConnection(this);
+//		dataAccessSS.read();	
 	}
 //IMPLEMENT to create new customers, suggested by Daniel.
 	void buildSaveNewProfileQuery() {

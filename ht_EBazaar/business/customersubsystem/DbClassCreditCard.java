@@ -85,8 +85,9 @@ class DbClassCreditCard implements IDbClass {
 		//IMPLEMENTED
 				this.custProfile = customerProfile;
 				queryType = READ;
-				dataAccessSS.createConnection(this);
-				dataAccessSS.read();		
+				dataAccessSS.atomicRead(this);
+				//dataAccessSS.createConnection(this);
+				//dataAccessSS.read();		
 	}
 
 	public CreditCard getDefaultCreditCard() {
