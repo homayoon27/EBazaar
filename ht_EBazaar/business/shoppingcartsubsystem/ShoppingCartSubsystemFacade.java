@@ -7,7 +7,6 @@ import java.util.logging.Logger;
 import middleware.DatabaseException;
 import middleware.EBazaarException;
 import business.RuleException;
-import business.customersubsystem.RulesPayment;
 import business.externalinterfaces.IAddress;
 import business.externalinterfaces.ICartItem;
 import business.externalinterfaces.ICreditCard;
@@ -69,9 +68,7 @@ public class ShoppingCartSubsystemFacade implements IShoppingCartSubsystem {
 	 * Private constructor to make the facade a singleton
 	 * 
 	 */
-	private ShoppingCartSubsystemFacade() {
-
-	}
+	private ShoppingCartSubsystemFacade() {	}
 
 	public void addCartItem(String itemName, String quantity,
 			String totalPrice, Integer pos) throws DatabaseException {
@@ -131,8 +128,9 @@ public class ShoppingCartSubsystemFacade implements IShoppingCartSubsystem {
 	}
 
 	public void saveLiveCart() {
-		// implement
-
+		//IMPLEMENTED
+		liveCart = 
+		makeSavedCartLive();
 	}
 
 	public void runShoppingCartRules() throws RuleException, EBazaarException {

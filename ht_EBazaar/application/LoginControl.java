@@ -53,8 +53,6 @@ public class LoginControl {
 		loginWindow = new LoginWindow(this);
 
 		EbazaarMainFrame.getInstance().getDesktop().add(loginWindow);
-		// loginWindow.setVisible(true);
-		// loginWindow.show();
 		if (!parentIsOuterFrame)
 			parentWindow.setVisible(false);
 		loginWindow.setVisible(true);

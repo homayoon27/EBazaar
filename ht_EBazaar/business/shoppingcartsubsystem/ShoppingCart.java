@@ -27,16 +27,25 @@ class ShoppingCart implements IShoppingCart {
     void setCartId(String cartId){
         this.cartId=cartId;
     }
+    /*
+     * homayoon @Nov.17
+     */
+    public String getCartId(){
+        return this.cartId;
+    }
     public boolean isEmpty(){
     	return cartItems == null || cartItems.isEmpty();
     }
     
     void addItem(CartItem item){
-        
+    	cartItems.add(item);
     }
     
+    /*
+     * homayoon @Nov.17
+     */
     void insertItem(int pos, CartItem item){
-        
+    	cartItems.add(pos, item);
     }
     
     public List<ICartItem>getCartItems(){

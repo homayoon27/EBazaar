@@ -11,5 +11,9 @@ public interface IShoppingCart {
     double getTotalPrice();
     boolean deleteCartItem(String name);
     boolean isEmpty();
-
+    
+    /*
+     * homayoon @Nov.17
+     */
+    String getCartId();
 }

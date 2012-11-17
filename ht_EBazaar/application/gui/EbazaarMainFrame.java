@@ -24,6 +24,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.UIManager;
 
@@ -82,7 +83,7 @@ public class EbazaarMainFrame extends javax.swing.JFrame implements ParentWindow
     JMenuItem menuItemLogin, menuItemPurchaseOnline, menuItemMaintainProduct, 
       menuItemMaintainCatalogTypes,menuItemExit, menuItemRevOrders,menuItemAbout,
       menuItemRetrieveSavedCart;  
-
+    JTextArea statArea;
     
 	public EbazaarMainFrame() {
 		//controllers
@@ -144,8 +145,7 @@ public class EbazaarMainFrame extends javax.swing.JFrame implements ParentWindow
 	
 	private void formatContentPane() {
 		mainPanel = new JPanel();
-		mainPanel.setLayout(new GridLayout(1,1));
-	   
+		mainPanel.setLayout(new GridLayout(1,1));   
 		
 		desktop = new JDesktopPane();
 		desktop.setBackground(Color.LIGHT_GRAY);
@@ -158,11 +158,19 @@ public class EbazaarMainFrame extends javax.swing.JFrame implements ParentWindow
 		
 		getContentPane().add(mainPanel);	
 		getContentPane().add(FOOTER,BorderLayout.PAGE_END);
+		/*
+		statArea = new JTextArea();
+		statArea.setBorder(BorderFactory.createLoweredBevelBorder());
+		statArea.setBackground(GuiUtil.FILLER_COLOR);
+		statArea.setSize(mainPanel.getWidth()/4, mainPanel.getHeight()/4);
+		statArea.append("Test");
+		//statArea.setBorder(new WindowBorder(GuiUtil.WINDOW_BORDER));
+		mainPanel.add(statArea);
+		*/
 	}
 	
 	private void insertLogo() {
-		ImageIcon image = new ImageIcon(GuiUtil.SPLASH_IMAGE);
-		
+		ImageIcon image = new ImageIcon(GuiUtil.SPLASH_IMAGE);		
 		mainPanel.add(new JLabel(image));	
 	}
 	
@@ -201,20 +209,27 @@ public class EbazaarMainFrame extends javax.swing.JFrame implements ParentWindow
 		newJToolBar.setMargin(new Insets(0,0,0,0));
 		
 		//Create a toolbar buttons
-		newJToolBar.add(createJToolbarButton("Login",GuiUtil.BTN_LOGIN,browseControl.getLoginListener(this)));
+		newJToolBar.add(createJToolbarButton("Login",GuiUtil.BTN_LOGIN
+				,browseControl.getLoginListener(this)));
 		newJToolBar.addSeparator();
 		
 		newJToolBar.add(createJToolbarButton("Browse Products",GuiUtil.BTN_BROWSE,
 				browseControl.getNewOnlinePurchaseListener(this)));
+		
 		newJToolBar.add(createJToolbarButton("View Order History",GuiUtil.BTN_ORDER,
 				orderControl.getSelectOrderActionListener(this)));
+		
 		newJToolBar.add(createJToolbarButton("Retrieve Shopping Cart",GuiUtil.BTN_CART,
 				browseControl.getRetrieveCartActionListener(this)));
+		
 		newJToolBar.addSeparator();
+		
 		newJToolBar.add(createJToolbarButton("Maintain Products",GuiUtil.BTN_PRODUCT,
 				prodControl.getMaintainProductActionListener(this)));
+		
 		newJToolBar.add(createJToolbarButton("Maintain Catalogues",GuiUtil.BTN_CATALOGS,
 				prodControl.getMaintainCatalogTypesActionListener(this)));
+		
 		newJToolBar.addSeparator();
 		
 		return newJToolBar;

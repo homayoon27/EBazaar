@@ -17,24 +17,17 @@ import business.Quantity;
 import business.RuleException;
 import business.RulesQuantity;
 import business.SessionContext;
-
+import business.customersubsystem.CustomerSubsystemFacade;
 import business.externalinterfaces.CustomerConstants;
-import business.externalinterfaces.ICartItem;
 import business.externalinterfaces.ICustomerSubsystem;
 import business.externalinterfaces.IProductFromDb;
-import business.externalinterfaces.IProductSubsystem;
 import business.externalinterfaces.IRules;
 import business.externalinterfaces.IShoppingCart;
 import business.externalinterfaces.IShoppingCartSubsystem;
 import business.productsubsystem.ProductSubsystemFacade;
 import business.shoppingcartsubsystem.ShoppingCartSubsystemFacade;
-import business.util.ProductUtil;
-import business.util.ShoppingCartUtil;
-import business.util.StringParse;
-
 import middleware.DatabaseException;
 import middleware.EBazaarException;
-
 import application.gui.CartItemsWindow;
 import application.gui.CatalogListWindow;
 import application.gui.DefaultData;
@@ -93,7 +86,9 @@ public class BrowseAndSelectController implements CleanupControl {
 	}
 
 	// control of CatalogListWindow
-	//homayoon @Nov.15
+	/*
+	 * homayoon @Nov.15 
+	 */
 	class SelectCatalogListener implements ActionListener {
 		public void actionPerformed(ActionEvent evt) {
 			JTable table = catalogListWindow.getTable();
@@ -149,7 +144,9 @@ public class BrowseAndSelectController implements CleanupControl {
 			useDefaultData = useDefData;
 		}
 
-		// homayoon @Nov.15
+		/* 
+		 * homayoon @Nov.15
+		 */
 		String[] readProductDetailsData(String prodName) {
 			if (useDefaultData) {
 				DefaultData productData = DefaultData.getInstance();
@@ -167,8 +164,7 @@ public class BrowseAndSelectController implements CleanupControl {
 					JOptionPane.showMessageDialog(catalogListWindow, errMsg, "Error",
 							JOptionPane.ERROR_MESSAGE);					
 				}
-				finally {
-					
+				finally {					
 				}
 			}
 			return null;
@@ -219,6 +215,17 @@ public class BrowseAndSelectController implements CleanupControl {
 			/*
 			 * homayoon @Nov.16
 			 */			
+			//insert rules
+        	//gather quantity data 
+        	//   ... read quantity requested from window
+        	//           --create instance of Quantity
+        	//   ... read quantity avail from database
+        	//           -- uses DbClassQuantity
+        	//              use populateEntity of DbClassQuantity
+        	//              to populate the value quantityAvail
+        	//              in Quantity
+        	//
+
 			DbClassQuantity dbQty = new DbClassQuantity();
 			Quantity qty = new Quantity(quantityWindow.getQuantityDesired());
 			dbQty.setQuantity(qty);
@@ -288,29 +295,69 @@ public class BrowseAndSelectController implements CleanupControl {
 		}
 	}
 
-	class SaveCartListener implements ActionListener {
-		public void actionPerformed(ActionEvent evt) {
-			// implement
-			// here's the logic:
-			// require login if not logged in
-			// if current live cart does not have a cartid
-			// then it's new;
-			// save cart level data, read the auto-generated
-			// cart id, then loop
-			// and get lineitemid's for each line, inserting
-			// the relevant cartid, and save each
-			// line
-			// If current cart does have an id, we just save
-			// cart items that are not flagged as "hasBeenSaved"
-			// (a boolean in that class)
-			// no need to save at the cart level, just save the
-			// not-so-far-saved cart items
-			// postcondition: the live cart has a cartid
-			// and all cart items are flagged as "hasBeenSaved"
+	/*
+	 * homayoon @Nov.16
+	 */			
+	// implement
+	// here's the logic:
+	// require login if not logged in
+	// if current live cart does not have a cartid then it's new;
+	// save cart level data, read the auto-generated
+	// cart id, then loop
+	// and get lineitemid's for each line, inserting
+	// the relevant cartid, and save each line
+	// If current cart does have an id, we just save
+	// cart items that are not flagged as "hasBeenSaved"
+	// (a boolean in that class)
+	// no need to save at the cart level, just save the
+	// not-so-far-saved cart items
+	// postcondition: the live cart has a cartid
+	// and all cart items are flagged as "hasBeenSaved"
+	class SaveCartListener implements ActionListener , Controller {
+		/*
+		 * this method is called when LoginControl needs this class to load
+		 * shoppingcart
+		 */
+		public void doUpdate() {}
 
+		public void actionPerformed(ActionEvent evt) {
+			IShoppingCartSubsystem shcss = ShoppingCartSubsystemFacade.getInstance();
+			SessionContext sctx = SessionContext.getInstance();
+			ICustomerSubsystem css = (ICustomerSubsystem)sctx.get(CustomerConstants.CUSTOMER);
+			Boolean loggedIn = (Boolean) sctx.get(CustomerConstants.LOGGED_IN);
+			if (!loggedIn.booleanValue()) {
+				LoginControl loginControl = new LoginControl(cartItemsWindow, mainFrame, this);
+				loginControl.startLogin();
+				shcss.setCustomerProfile(css.getCustomerProfile());
+				System.out.println("Successful Login.");
+			} else {
+				mainFrame.getDesktop().add(maintainProductCatalog);
+				maintainProductCatalog.setVisible(true);
+			}
+			IShoppingCart curCard = shcss.getLiveCart();
+			String curtId = curCard.getCartId();
+			if (curtId == null) {
+				
+			}
+			else {
+				
+			}
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
 		}
 	}
-
+		
 	// /////// PUBLIC INTERFACE -- for getting instances of listeners ///
 	// EbazaarMainFrame
 	public ActionListener getNewOnlinePurchaseListener(EbazaarMainFrame f) {

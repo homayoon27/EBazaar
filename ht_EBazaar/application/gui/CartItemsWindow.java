@@ -138,12 +138,10 @@ public class CartItemsWindow extends JInternalFrame implements ParentWindow {
 		totalPanel.add(totalValue);
 
 		// you may want to have an edit button for Cart Items
-		JButton editButton = new JButton(EDIT_ITEM, new ImageIcon(
-				GuiUtil.BTN_EDIT));
+		JButton editButton = new JButton(EDIT_ITEM, new ImageIcon(GuiUtil.BTN_EDIT));
 
 		// and a delete button
-		JButton deleteButton = new JButton(DELETE_ITEM, new ImageIcon(
-				GuiUtil.BTN_DELETE));
+		JButton deleteButton = new JButton(DELETE_ITEM, new ImageIcon(GuiUtil.BTN_DELETE));
 		// you'll need to add listeners to these
 
 		JButton[] buttons = { editButton, deleteButton };
@@ -157,20 +155,16 @@ public class CartItemsWindow extends JInternalFrame implements ParentWindow {
 	// buttons
 	public void defineLowerPanel() {
 		// proceed button
-		JButton proceedButton = new JButton(PROCEED_BUTN, new ImageIcon(
-				GuiUtil.BTN_BASKET));
-		proceedButton.addActionListener(checkoutControl
-				.getProceedToCheckoutListener(this));
+		JButton proceedButton = new JButton(PROCEED_BUTN, new ImageIcon(GuiUtil.BTN_BASKET));
+		proceedButton.addActionListener(checkoutControl.getProceedToCheckoutListener(this));
 
 		// continue button
 		JButton continueButton = new JButton(CONTINUE, new ImageIcon(
 				GuiUtil.BTN_CONTINUE));
-		continueButton.addActionListener(browseControl
-				.getContinueShoppingListener(this));
+		continueButton.addActionListener(browseControl.getContinueShoppingListener(this));
 
 		// save button
-		JButton saveButton = new JButton(SAVE_CART, new ImageIcon(
-				GuiUtil.BTN_SAVE));
+		JButton saveButton = new JButton(SAVE_CART, new ImageIcon(GuiUtil.BTN_SAVE));
 		saveButton.addActionListener(browseControl.getSaveCartListener(this));
 
 		// create lower panel
@@ -182,8 +176,7 @@ public class CartItemsWindow extends JInternalFrame implements ParentWindow {
 		updateModel();
 		table = new JTable(model);
 		tablePane = new JScrollPane();
-		tablePane.setPreferredSize(new Dimension(TABLE_WIDTH,
-				DEFAULT_TABLE_HEIGHT));
+		tablePane.setPreferredSize(new Dimension(TABLE_WIDTH, DEFAULT_TABLE_HEIGHT));
 		tablePane.getViewport().add(table);
 
 	}
