@@ -90,6 +90,13 @@ public class ShoppingCartSubsystemFacade implements IShoppingCartSubsystem {
 	 */
 	private ShoppingCartSubsystemFacade() {	}
 
+	/*
+	 * homayoon @Nov.17
+	 */
+	public void addCartItem(String itemName, String quantity, String totalPrice)
+			throws DatabaseException {
+		addCartItem(itemName, quantity, totalPrice, null);
+	}
 	public void addCartItem(String itemName, String quantity,
 			String totalPrice, Integer pos) throws DatabaseException {
 		// if a saved cart has been retrieved, it will be the live cart, unless
@@ -156,13 +163,4 @@ public class ShoppingCartSubsystemFacade implements IShoppingCartSubsystem {
 		IRules transferObject = new RulesShoppingCart(liveCart);
 		transferObject.runRules();
 	}
-
-	/*
-	 * homayoon @Nov.17
-	 */
-	public void addCartItem(String itemName, String quantity, String totalPrice)
-			throws DatabaseException {
-		liveCart.addItem(new CartItem(itemName, quantity, totalPrice));
-	}
-
 }

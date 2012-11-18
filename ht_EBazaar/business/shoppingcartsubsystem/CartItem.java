@@ -19,6 +19,9 @@ public class CartItem implements ICartItem {
 	// database
 	boolean alreadySaved;
 
+	/*
+	 * homayoon @Nov.18
+	 */
 	/** This version of constructor used when reading data from screen */
 	public CartItem(String productName, String quantity, String totalprice)
 			throws DatabaseException {
@@ -27,8 +30,8 @@ public class CartItem implements ICartItem {
 		this.totalprice = totalprice;
 		alreadySaved = false;
 		IProductSubsystem prodSS = new ProductSubsystemFacade();
-		// productid = prodSS.getProductIdFromName(productName);
-		productid = -1;
+		productid = Integer.valueOf(prodSS.getProductIdFromName(productName));
+
 	}
 
 	/** This version of constructor used when reading from database */
@@ -42,8 +45,7 @@ public class CartItem implements ICartItem {
 		this.totalprice = totalprice;
 		this.alreadySaved = alreadySaved;
 		IProductSubsystem prodSS = new ProductSubsystemFacade();
-		// productName = prodSS.getProductFromId(productid).getProductName();
-		productName = "??";
+		productName = prodSS.getProductFromId(Integer.toString(productid)).getProductName();
 	}
 
 	public String toString() {

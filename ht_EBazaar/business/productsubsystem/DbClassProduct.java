@@ -42,11 +42,23 @@ class DbClassProduct implements IDbClass {
 	Integer productId;
 	String productname;
 	String catName;
+	 String description;
+	 String totalquantity;
+     String mfgdate;
+	 String priceperunit;
 	private final String LOAD_PROD_TABLE = "LoadProdTable";
 	private final String READ_PRODUCT = "ReadProduct";
 	private final String READ_PROD_LIST = "ReadProdList";
+
+	private static final String DELETE = "Delete";
+
+
+
+	
 	private static final String READ_PRODUCT_FROM_NAME = "ReadProduct";
 	private static final String READ_PROD_ID = "ReadProductId";
+
+	private static final String SAVE = "SAVE";
 	 
 	
 
@@ -61,9 +73,44 @@ class DbClassProduct implements IDbClass {
 			buildReadProductByNameQuery();
 		} else if(queryType.equals(READ_PROD_ID)){
 			buildReadProductByNameQuery();
+		}else if(queryType.equals(SAVE)){
+			buildSaveNewProduct();
+		}else if(queryType.equals(DELETE)){
+			buildDeleteProduct();
 		}
 
 	}
+
+	private void buildDeleteProduct() {
+		query = "delete from product where productname='"+productname+"'";// TODO Auto-generated method stub
+		
+	}
+
+	private void buildSaveNewProduct() {
+//		productid, productname, totalquantity, priceperunit,
+//		 * mfgdate, catalogid, description
+			query="INSERT into product"+"(catalogid,productname,totalquantity," +
+					"priceperunit,mfgdate,description)"+ "VALUE('" +
+					          catalogId + "','" +
+							  prodFromGui.getProductName() + "','" +
+	        				  prodFromGui.getQuantityAvail()+"','" +
+	        				  prodFromGui.getMfgDate() + "','" +
+	        				  prodFromGui.getUnitPrice()+ "','"+	        				  
+	        				  description + "')";
+			 	
+			
+			
+	
+	
+//		query = "INSERT INTO product(productname ,totalquantity,priceperunit,mfgdate,catalogid,description)" +
+//				" VALUE(NULL," + productname + ",'" +
+//				                 totalquantity + ",'" + 
+//				                 priceperunit + ",'" + 
+//				                 mfgdate + ",'" + 
+//			                    catalogId + ",'" +
+//				                 description + "')";// TODO Auto-generated method stub
+			
+		}
 
 	private void buildReadProductByNameQuery() {
 		// TODO Auto-generated method stub
@@ -152,9 +199,40 @@ class DbClassProduct implements IDbClass {
 	 * Database columns: productid, productname, totalquantity, priceperunit,
 	 * mfgdate, catalogid, description
 	 */
+//	public void saveNewProduct(IProductFromGui product, Integer catalogid,
+//			String description) throws DatabaseException {
+//		    this.prodFromGui=product;		    
+//		    this.productname=product.getProductName();
+//		    this.totalquantity=product.getQuantityAvail();
+//		    this.mfgdate=product.getMfgDate();
+//			this.catalogId=catalogid;
+//			this.description=description;
+//			this.priceperunit=product.getUnitPrice();
+//			queryType = SAVE_NEW_PRODUCT;
+//		//	dataAccessSS.atomicRead(this);
+//			dataAccessSS.saveWithinTransaction(this);//createConnection(this);
+//			//dataAccessSS.save();
+//			//dataAccessSS.releaseConnection(this);
+//			
+//			
+//		}
+	
 	public void saveNewProduct(IProductFromGui product, Integer catalogid,
 			String description) throws DatabaseException {
+		this.prodFromGui=product; 
+		this.catalogId=catalogid;
+		this.description=description;
+    	queryType= SAVE;
+    	dataAccessSS.saveWithinTransaction(this);
 		//IMPLEMENT
+	}
+	public void deleteproduct(String name) throws DatabaseException {
+		System.out.println("product name-----"+name);
+		queryType=DELETE;
+    	this.productname=name;
+    	dataAccessSS.createConnection(this);
+		dataAccessSS.delete();
+		
 	}
 
 	public void populateEntity(ResultSet resultSet) throws DatabaseException {

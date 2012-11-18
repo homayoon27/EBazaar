@@ -43,7 +43,7 @@ public class CartItemsWindow extends JInternalFrame implements ParentWindow {
 	JPanel upper, middle, lower;
 
 	// constants
-	private final boolean USE_DEFAULT_DATA = true;
+	private final boolean USE_DEFAULT_DATA = false;//true;
 
 	private final String GRANDTOTAL = "Total Price: $";
 	private final String EDIT_ITEM = "Edit";
@@ -129,7 +129,7 @@ public class CartItemsWindow extends JInternalFrame implements ParentWindow {
 		totalPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		totalPanel.setBackground(GuiUtil.FILLER_COLOR);
 		JLabel totalLabel = new JLabel(GRANDTOTAL);
-		totalValue = new JLabel(GRANDTOTAL);
+		totalValue = new JLabel("0");
 
 		// totalValue.setForeground(GuiControl.DARK_BLUE);
 
@@ -138,11 +138,18 @@ public class CartItemsWindow extends JInternalFrame implements ParentWindow {
 		totalPanel.add(totalValue);
 
 		// you may want to have an edit button for Cart Items
+		/*
+		 * homayoon @Nov.18
+		 */
 		JButton editButton = new JButton(EDIT_ITEM, new ImageIcon(GuiUtil.BTN_EDIT));
-
+		editButton.addActionListener(browseControl.getEditShoppingCartItemListener(this));
+		
 		// and a delete button
+		/*
+		 * homayoon @Nov.18
+		 */
 		JButton deleteButton = new JButton(DELETE_ITEM, new ImageIcon(GuiUtil.BTN_DELETE));
-		// you'll need to add listeners to these
+		deleteButton.addActionListener(browseControl.getDeleteShoppingCartItemListener(this));
 
 		JButton[] buttons = { editButton, deleteButton };
 		JPanel buttonsPanel = GuiUtil.createStandardButtonPanel(buttons);
@@ -198,10 +205,9 @@ public class CartItemsWindow extends JInternalFrame implements ParentWindow {
 		if (USE_DEFAULT_DATA) {
 			DefaultData data = DefaultData.getInstance();
 			theData = data.getCartItemsData();
-
 		}
-		updateModel(theData);
 
+		updateModel(theData);
 	}
 
 	private void updateTable() {

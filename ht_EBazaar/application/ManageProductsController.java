@@ -1,10 +1,17 @@
 package application;
 
+//import gui.PaymentWindow;
+//import gui.QuantityBean;
+//import gui.QuantityWindow;
+
 import java.awt.Component;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -15,6 +22,8 @@ import javax.swing.JInternalFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 
+import rulesengine.ReteWrapper;
+
 import middleware.DatabaseException;
 
 import application.gui.AddEditCatalog;
@@ -24,16 +33,22 @@ import application.gui.DefaultData;
 import application.gui.EbazaarMainFrame;
 import application.gui.MaintainCatalogTypes;
 import application.gui.MaintainProductCatalog;
+import application.gui.ProductListWindow;
 import business.SessionContext;
 import business.externalinterfaces.CustomerConstants;
+import business.externalinterfaces.IProductFromDb;
+import business.externalinterfaces.IProductFromGui;
 import business.externalinterfaces.IProductSubsystem;
 import business.productsubsystem.ProductSubsystemFacade;
+import business.util.ProductUtil;
 
 public class ManageProductsController implements CleanupControl {
 
 	// ///////// EVENT HANDLERS -- new code goes here ////////////
-
+	//private MaintainProductCatalog maintainProductCatalog;
 	// // control MaintainCatalogTYpes
+	
+	IProductSubsystem prodSS = new ProductSubsystemFacade();
 	class AddCatalogListener implements ActionListener {
 
 		public void actionPerformed(ActionEvent evt) {
@@ -77,9 +92,27 @@ public class ManageProductsController implements CleanupControl {
 			JTable table = maintainCatalogTypes.getTable();
 			int selectedRow = table.getSelectedRow();
 			if (selectedRow >= 0) {
+				IProductSubsystem productSubsystem =new ProductSubsystemFacade();								
+				//String catalogType = (String)maintainCatalogTypes.getSelectedItem();
+				String catalogType=(String) table.getValueAt(selectedRow, 0);
+				System.out.println("Selected value"+catalogType);
+				
+					try {
+						productSubsystem.deleteCatalog(catalogType);
+					} catch (DatabaseException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+
+				try {
+					List<String[]> catalognames=productSubsystem.getCatalogNames();				
+					maintainCatalogTypes.updateModel(catalognames);
+				} catch (DatabaseException e) {
+					e.printStackTrace();
 				// Students: code goes here.
+				}
 				JOptionPane.showMessageDialog(maintainCatalogTypes,
-						"Need to write code for this!", "Information",
+						"Catalog Deleted!", "Information",
 						JOptionPane.INFORMATION_MESSAGE);
 
 			} else {
@@ -97,9 +130,36 @@ public class ManageProductsController implements CleanupControl {
 		 * products
 		 */
 		public void doUpdate() {
+			IProductSubsystem prodSS = new ProductSubsystemFacade();
+			try {
+			maintainProductCatalog.getcatalogTypeCombo().removeAllItems();
+			//List<String[]> catalognames=prodSS.getCatalogNames();
+			List<String[]> catalognames=prodSS.getCatalogNamesFromNames();
+			maintainProductCatalog.updateCombocatalog(catalognames);
+			//Iterator<String[]> iter=catalognames.iterator();
+//			while(iter.hasNext())
+//			{
+//			   String catalog=iter.next()[0];			
+//			   maintainProductCatalog.getcatalogTypeCombo().addItem(catalog);			   
+//			 
+//			}
+//			for(int i=0;i<catalognames.size();i++){
+//				System.out.println((String)maintainProductCatalog.getcatalogTypeCombo().getItemAt(i));
+//			}
+			//maintainProductCatalog.updateCombo(prodSS.getCatalogNames());
+			
+	           String catalogName= (String) maintainProductCatalog.getcatalogTypeCombo().getItemAt(0);
+			//String catalogName=maintainProductCatalog.getCatalogGroup();
+			
+				maintainProductCatalog.updateModel(ProductUtil.extractProductInfoForManager(prodSS.getProductList(catalogName)));
+				mainFrame.getDesktop().add(maintainProductCatalog);
+				maintainProductCatalog.setVisible(true);
+			} catch (DatabaseException e) {
 
-			// implement by requesting product catalog for selected
-			// catalogtype from Product Subsystem
+				JOptionPane.showMessageDialog(maintainProductCatalog, "Database unavailable: ", e.getMessage(),
+						JOptionPane.INFORMATION_MESSAGE);
+			}
+		
 
 		}
 
@@ -116,9 +176,10 @@ public class ManageProductsController implements CleanupControl {
 				loginControl.startLogin();
 				System.out.println("hello");
 			} else {
-
-				mainFrame.getDesktop().add(maintainProductCatalog);
-				maintainProductCatalog.setVisible(true);
+				doUpdate();
+//				mainFrame.getDesktop().add(maintainProductCatalog);
+//				maintainProductCatalog.setVisible(true);
+				
 			}
 		}
 	}
@@ -129,9 +190,21 @@ public class ManageProductsController implements CleanupControl {
 		 * this method is called when LoginControl needs this class to load
 		 * catalogs
 		 */
-		public void doUpdate() {
-			// implement by requesting catalog list from Product Subsystem
-		}
+		public void doUpdate() {	
+			IProductSubsystem prodSS = new ProductSubsystemFacade();
+			try {	
+			maintainCatalogTypes = new MaintainCatalogTypes();			
+			List<String[]> catalognames=prodSS.getCatalogNamesFromNames();
+			maintainCatalogTypes.updateModel(catalognames);						
+			mainFrame.getDesktop().add(maintainCatalogTypes);
+			maintainCatalogTypes.setVisible(true);
+			// implement by requesting catalog list from Product Subsystem	
+			} catch (DatabaseException e) {
+
+				JOptionPane.showMessageDialog(maintainCatalogTypes, "Database unavailable: ", e.getMessage(),
+						JOptionPane.INFORMATION_MESSAGE);
+			}
+			}
 
 		public void actionPerformed(ActionEvent e) {
 			SessionContext ctx = SessionContext.getInstance();
@@ -142,9 +215,12 @@ public class ManageProductsController implements CleanupControl {
 						maintainCatalogTypes, mainFrame, this);
 				loginControl.startLogin();
 			} else {
-				maintainCatalogTypes = new MaintainCatalogTypes();
-				mainFrame.getDesktop().add(maintainCatalogTypes);
-				maintainCatalogTypes.setVisible(true);
+				
+//				maintainCatalogTypes = new MaintainCatalogTypes();
+				doUpdate();
+//				System.out.println("What is wrong");
+//				mainFrame.getDesktop().add(maintainCatalogTypes);
+//				maintainCatalogTypes.setVisible(true);
 
 			}
 		}
@@ -164,15 +240,28 @@ public class ManageProductsController implements CleanupControl {
 			// no field values need to be passed into AddEditProduct when adding
 			// a new product
 			// so we create an empty Properties instance
-			Properties emptyProductInfo = new Properties();
-
-			String catalogType = maintainProductCatalog.getCatalogGroup();
+			
+					
+			    
+			Properties emptyProductInfo = new Properties();			
+			String catalogType = (String)maintainProductCatalog.getcatalogTypeCombo().getSelectedItem();
+			//String catalogType = maintainProductCatalog.getCatalogGroup();
 			addEditProduct = new AddEditProduct(GuiUtil.ADD_NEW, catalogType,
 					emptyProductInfo);
+			try {
+				//addEditProduct.getCatalogGroup().removeAllItems();
+				//add in comboBox data from the database
+			    List<String[]> catalognames=prodSS.getCatalogNamesFromNames();//getCatalogNames();
+			    addEditProduct.updateCombocatalog(catalognames);
+			    addEditProduct.getCatalogGroup().setSelectedItem(catalogType);
 			maintainProductCatalog.setVisible(false);
 			mainFrame.getDesktop().add(addEditProduct);
 			addEditProduct.setVisible(true);
+			} catch (DatabaseException e) {
 
+				JOptionPane.showMessageDialog(maintainProductCatalog, "Database unavailable: ", e.getMessage(),
+						JOptionPane.INFORMATION_MESSAGE);
+			}
 		}
 
 	}
@@ -180,40 +269,60 @@ public class ManageProductsController implements CleanupControl {
 	class EditProductListener implements ActionListener {
 		final String ERROR_MESSAGE = "Please select a row.";
 		final String ERROR = "Error";
-
+		IProductSubsystem prodSS = new ProductSubsystemFacade();
 		public void actionPerformed(ActionEvent evt) {
 			JTable table = maintainProductCatalog.getTable();
 			CustomTableModel model = maintainProductCatalog.getModel();
-			String catalogType = maintainProductCatalog.getCatalogGroup();
+			//String catalogType = maintainProductCatalog.getCatalogGroup();
 			int selectedRow = table.getSelectedRow();
-			if (selectedRow >= 0) {
-				String[] fldNames = DefaultData.FIELD_NAMES;
+			if (selectedRow >= 0) {				
+				String catalogType = (String)maintainProductCatalog.getcatalogTypeCombo().getSelectedItem();
+				String type = (String) table.getValueAt(selectedRow, 0);
+				System.out.println("Catalog Type"+catalogType);
+				
+			
+				
+				String[] fldNames = {"Product Name","Price Per Unit","Mfg. Date","Quantity"};//DefaultData.FIELD_NAMES;
 				Properties productInfo = new Properties();
 
 				// index for Product Name
-				int columnIndex = DefaultData.PRODUCT_NAME_INT;
+				int columnIndex =0; //DefaultData.PRODUCT_NAME_INT;
 				productInfo.setProperty(fldNames[columnIndex],
 						(String) model.getValueAt(selectedRow, columnIndex));
 
 				// index for Price Per Unit
-				columnIndex = DefaultData.PRICE_PER_UNIT_INT;
+				columnIndex = 1;//DefaultData.PRICE_PER_UNIT_INT;
 				productInfo.setProperty(fldNames[columnIndex],
 						(String) model.getValueAt(selectedRow, columnIndex));
 
 				// index for Mfg Date
-				columnIndex = DefaultData.MFG_DATE_INT;
+				columnIndex = 2;//DefaultData.MFG_DATE_INT;
 				productInfo.setProperty(fldNames[columnIndex],
 						(String) model.getValueAt(selectedRow, columnIndex));
 
 				// index for Quantity
-				columnIndex = DefaultData.QUANTITY_INT;
+				columnIndex = 3;//DefaultData.QUANTITY_INT;
 				productInfo.setProperty(fldNames[columnIndex],
 						(String) model.getValueAt(selectedRow, columnIndex));
 
 				AddEditProduct editProd = new AddEditProduct(GuiUtil.EDIT,
 						catalogType, productInfo);
+				try {
+					//addEditProduct.getCatalogGroup().removeAllItems();
+					//add in comboBox data from the database
+				   List<String[]> catalognames=prodSS.getCatalogNamesFromNames();//getCatalogNames();
+				    addEditProduct.updateCombocatalog(catalognames);
+				    addEditProduct.getCatalogGroup().setSelectedItem(catalogType);
+				
+
+				} catch (DatabaseException e) {
+
+					JOptionPane.showMessageDialog(maintainProductCatalog, "Database unavailable: ", e.getMessage(),
+							JOptionPane.INFORMATION_MESSAGE);
+				}
 				mainFrame.getDesktop().add(editProd);
 				editProd.setVisible(true);
+				
 
 			} else {
 				JOptionPane.showMessageDialog(maintainProductCatalog,
@@ -231,12 +340,33 @@ public class ManageProductsController implements CleanupControl {
 		public void actionPerformed(ActionEvent evt) {
 			JTable table = maintainProductCatalog.getTable();
 			int selectedRow = table.getSelectedRow();
-			if (selectedRow >= 0) {
+			if (selectedRow >= 0) {				
 				// Students: code goes here.
 
-				JOptionPane.showMessageDialog(maintainProductCatalog,
-						"Need to write code for this!", "Information",
-						JOptionPane.INFORMATION_MESSAGE);
+				IProductSubsystem productSubsystem =new ProductSubsystemFacade();
+				List<String[]> associatedProducts;				
+				String catalogType = (String)maintainProductCatalog.getcatalogTypeCombo().getSelectedItem();
+				String productName=(String) table.getValueAt(selectedRow, 0);
+				
+				
+					try {
+						productSubsystem.deleteProduct(productName);
+					} catch (DatabaseException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+
+				try {
+					associatedProducts = business.util.ProductUtil.extractProductInfoForManager(
+					productSubsystem.refreshProductList(catalogType)); 
+					maintainProductCatalog.updateModel(associatedProducts);
+				} catch (DatabaseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				JOptionPane.showMessageDialog(maintainProductCatalog, "product deleted", "Information",
+						JOptionPane.INFORMATION_MESSAGE);				
+				
 
 			} else {
 				JOptionPane.showMessageDialog(maintainProductCatalog,
@@ -264,9 +394,20 @@ public class ManageProductsController implements CleanupControl {
 	// control AddEditCatalog
 	class SaveAddEditCatListener implements ActionListener {
 		public void actionPerformed(ActionEvent evt) {
-			JOptionPane.showMessageDialog(addEditCatalog,
-					"Need to write code for this!", "Information",
-					JOptionPane.INFORMATION_MESSAGE);
+			
+			IProductSubsystem prod = new ProductSubsystemFacade();			
+			String cataloType=addEditCatalog.getCatalog();		
+			try {
+				prod.saveNewCatalogName(cataloType);
+				JOptionPane.showMessageDialog(addEditCatalog,
+						"Catalog Saved", "Information",
+						JOptionPane.INFORMATION_MESSAGE);
+				addEditCatalog.setCatalog("");
+			} catch (DatabaseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 
 		}
 	}
@@ -287,9 +428,59 @@ public class ManageProductsController implements CleanupControl {
 
 	class SaveAddEditProductListener implements ActionListener {
 		public void actionPerformed(ActionEvent evt) {
-			JOptionPane.showMessageDialog(addEditProduct,
-					"Need to write code for this!", "Information",
-					JOptionPane.INFORMATION_MESSAGE);
+			IProductSubsystem prodSS= new ProductSubsystemFacade();
+			 String mfgDate=addEditProduct.getmfgDateField();
+			 String productName=addEditProduct.getproductNameField();
+			 String numAvail=addEditProduct.getquantityField();
+			 String unitPrice=addEditProduct.getpricePerUnitField();
+			 String catalogType=addEditProduct.getcatalogGroupField();
+			 IProductFromGui product=prodSS.createProduct(productName, mfgDate, numAvail, unitPrice);
+			 try {				
+				prodSS.saveNewProduct(product, catalogType);
+				
+				JOptionPane.showMessageDialog(addEditProduct,
+						"New Product Saved", "Information",
+						JOptionPane.INFORMATION_MESSAGE);
+				
+			} catch (DatabaseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			 
+			
+			
+			
+	 	/*	try {
+    			//set up
+    			String moduleName = "rules-quantity";
+    			File rulesFile =new File("quantity-rules.clp");
+    			
+    			String deftemplateName = "quantity-template";
+    			QuantityBean addrbean = new QuantityBean(getQuantityDesired(),getQuantityAvailable());
+    			HashMap h = new HashMap();
+    			h.put(deftemplateName, addrbean);
+    			
+    			//start up the rules engine
+    			ReteWrapper engine = new ReteWrapper();
+    			engine.setRulesAsString(rulesFile, false);
+    			engine.setCurrentModule(moduleName);
+    			engine.setTable(h);
+    			engine.runRules();
+    			updates = engine.getUpdates();
+    		}
+    		catch(Exception e) {
+    			rulesOk=false;
+    			setVisible(true);
+    			displayError(QuantityWindow.this,e.getMessage());
+    		}	
+    	//}
+    	if(rulesOk) {
+    			//System.out.println(updates.toString());
+               	setVisible(false);
+            	PaymentWindow w = new PaymentWindow();
+            	w.setVisible(true);
+            	w.setParentWindow(QuantityWindow.this);
+    	}*/
 
 		}
 	}
@@ -312,16 +503,20 @@ public class ManageProductsController implements CleanupControl {
 			// if(mainFrame != null) mainFrame.setVisible(false);
 			String selectedValue = (String) ((JComboBox) evt.getSource())
 					.getSelectedItem();
+	System.out.println(selectedValue);
 			IProductSubsystem prodSS = new ProductSubsystemFacade();
-
-			// IMPLEMENT
-			/*
-			 * will work when ProductSubsystemFacade is completed List<String[]>
-			 * associatedProducts = business.util.ProductUtil
-			 * .extractProductInfoForManager(prodSS
-			 * .getProductList(selectedValue));
-			 */
-			List<String[]> associatedProducts = new ArrayList<String[]>();
+			
+			//IMPLEMENT
+			// will work when ProductSubsystemFacade is completed
+		try{
+			List<String[]> associatedProducts = business.util.ProductUtil
+					.extractProductInfoForManager(prodSS.getProductList(selectedValue));
+			
+			
+				//the comment is upto this
+			
+	
+			//List<String[]> associatedProducts = new ArrayList<String[]>();
 			for (IComboObserver o : observers) {
 				if (o != null) {
 					o.setCatalogGroup(selectedValue);
@@ -329,10 +524,15 @@ public class ManageProductsController implements CleanupControl {
 				}
 			}
 			if (maintainProductCatalog != null) {
-				maintainProductCatalog.updateModel(associatedProducts);
+				maintainProductCatalog.updateModel(associatedProducts);		
 				maintainProductCatalog.repaint();
 			}
-
+			}catch(DatabaseException e) {
+				String errMsg = "Database unavailable: " + e.getMessage();
+				JOptionPane.showMessageDialog(maintainProductCatalog, errMsg,
+						"Error", JOptionPane.ERROR_MESSAGE);
+			}
+		
 		}
 
 	}

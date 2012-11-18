@@ -23,6 +23,7 @@ public class DbClassQuantity implements IDbClass {
 	private String queryType;
     private String query;
     private final String READ = "Read";	
+    private final String UPDATE = "Update";	
     private final String QUANTITY_AVAIL = "totalquantity";
     
     public DbClassQuantity() {}
@@ -31,6 +32,14 @@ public class DbClassQuantity implements IDbClass {
     	quantity=q;
     }
     /** updates quantity available field in the quantity object */
+    public void updateQuantityAvail(String productName) throws DatabaseException{
+    	this.productName = productName;	
+        queryType=UPDATE;
+        dataAccessSS.createConnection(this);
+        dataAccessSS.save();
+        dataAccessSS.releaseConnection(this);
+    	
+    }
     public void readQuantityAvail(String productName) throws DatabaseException{
     	this.productName = productName;	
         queryType=READ;
@@ -47,10 +56,19 @@ public class DbClassQuantity implements IDbClass {
     	if(queryType.equals(READ)){
     		buildReadQuery();
     	}
+    	else if(queryType.equals(UPDATE)){
+    		buildUpdateQuery();
+    	}
+    	System.out.println("***QUERY*** "+query);
     }
     
     private void buildReadQuery() {
     	query = "SELECT totalquantity from Product where productname='"+productName+"'";
+    }
+    private void buildUpdateQuery() {
+    	query = "UPDATE Product SET totalquantity="
+    				+ quantity.getQuantityAvailable()
+    				+ " WHERE productname='"+productName+"'";
     }
     
     public void populateEntity(ResultSet rs) throws DatabaseException {
@@ -76,7 +94,7 @@ public class DbClassQuantity implements IDbClass {
         Quantity qty = new Quantity("20");
         dbq.setQuantity(qty);
         try {
-            dbq.readQuantityAvail("Pants");
+            dbq.readQuantityAvail("Computers");
             System.out.println(qty.getQuantityAvailable());
         }
         catch(DatabaseException e){

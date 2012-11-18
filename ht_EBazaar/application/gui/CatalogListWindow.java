@@ -71,14 +71,12 @@ public class CatalogListWindow extends JInternalFrame implements ParentWindow {
 		initializeWindow();
 		defineMainPanel();
 		getContentPane().add(mainPanel);
-
 	}
 
 	private void initializeWindow() {
 
 		setSize(GuiUtil.SCREEN_WIDTH, GuiUtil.SCREEN_HEIGHT);
 		GuiUtil.centerFrameOnDesktop(this);
-
 	}
 
 	private void defineMainPanel() {
@@ -90,7 +88,6 @@ public class CatalogListWindow extends JInternalFrame implements ParentWindow {
 		defineLowerPanel();
 		mainPanel.add(upperSubpanel, BorderLayout.NORTH);
 		mainPanel.add(lowerSubpanel, BorderLayout.SOUTH);
-
 	}
 
 	private void defineUpperPanel() {
@@ -111,7 +108,6 @@ public class CatalogListWindow extends JInternalFrame implements ParentWindow {
 				tablePane);
 
 		upperSubpanel.add(tablePanePanel, BorderLayout.CENTER);
-
 	}
 
 	private void createMainLabel() {
@@ -152,6 +148,11 @@ public class CatalogListWindow extends JInternalFrame implements ParentWindow {
 		if (USE_DEFAULT_DATA) {
 			theData = DefaultData.getCatalogTypes();
 		}
+		else
+		{
+			
+		}
+		
 		updateModel(theData);
 	}
 
@@ -174,7 +175,6 @@ public class CatalogListWindow extends JInternalFrame implements ParentWindow {
 		// create lower panel
 		JButton[] buttons = { browseButton, backButton };
 		lowerSubpanel = GuiUtil.createStandardButtonPanel(buttons);
-
 	}
 
 	public void setParentWindow(Component parentWindow) {

@@ -99,9 +99,9 @@ public class GuiUtil {
 	public static final String BTN_LOCK ="images/lockapplication.png";
 	
 	//colors
-	//public static Color BROWN = new Color(0x9a7c46);
-	//public static Color PALE_YELLOW = new Color(0xffface);
-	//public static Color FAINT_YELLOW = new Color(0xffffe0);
+	public static Color BROWN = new Color(0x9a7c46);
+	public static Color PALE_YELLOW = new Color(0xffface);
+	public static Color FAINT_YELLOW = new Color(0xffffe0);
 	public static Color DARK_BLUE = Color.blue.darker();
 	public static Color LIGHT_BLUE = new Color(0xf2ffff);
 	public static Color DARK_GRAY = new Color(0xcccccc);

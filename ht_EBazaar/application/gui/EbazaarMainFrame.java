@@ -49,7 +49,7 @@ public class EbazaarMainFrame extends javax.swing.JFrame implements ParentWindow
 	//ebazaar application title
 	private final String EBAZAAR_APP_NAME = "Ebazaar Online Shopping Application";
 	private final JLabel FOOTER = 
-		new JLabel("Copyright Â© 2012 MUM. All Rights Reserved. ", JLabel.CENTER);
+		new JLabel("Copyright © 2012 MUM. All Rights Reserved. ", JLabel.CENTER);
 	
 	//menu item names
 	private final String LOGIN = "Login";
@@ -158,15 +158,7 @@ public class EbazaarMainFrame extends javax.swing.JFrame implements ParentWindow
 		
 		getContentPane().add(mainPanel);	
 		getContentPane().add(FOOTER,BorderLayout.PAGE_END);
-		/*
-		statArea = new JTextArea();
-		statArea.setBorder(BorderFactory.createLoweredBevelBorder());
-		statArea.setBackground(GuiUtil.FILLER_COLOR);
-		statArea.setSize(mainPanel.getWidth()/4, mainPanel.getHeight()/4);
-		statArea.append("Test");
-		//statArea.setBorder(new WindowBorder(GuiUtil.WINDOW_BORDER));
-		mainPanel.add(statArea);
-		*/
+	
 	}
 	
 	private void insertLogo() {

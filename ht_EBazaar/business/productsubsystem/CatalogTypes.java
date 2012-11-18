@@ -41,5 +41,14 @@ public class CatalogTypes implements ICatalogTypes {
         
         
     }
+//    private CatalogTypes(){}
+//    private static CatalogTypes catalotypes;
+//    public static CatalogTypes getInstance(){
+//    	if(catalotypes==null){
+//    		catalotypes=new CatalogTypes();
+//    	}
+//		return catalotypes;
+//    	
+//    }
 	
 }

@@ -19,6 +19,7 @@ import business.RulesQuantity;
 import business.SessionContext;
 import business.customersubsystem.CustomerSubsystemFacade;
 import business.externalinterfaces.CustomerConstants;
+import business.externalinterfaces.ICartItem;
 import business.externalinterfaces.ICustomerSubsystem;
 import business.externalinterfaces.IProductFromDb;
 import business.externalinterfaces.IRules;
@@ -38,6 +39,7 @@ import application.gui.ProductDetailsWindow;
 import application.gui.ProductListWindow;
 import application.gui.QuantityWindow;
 import application.gui.SelectOrderWindow;
+import application.gui.WaitDialog;
 
 public class BrowseAndSelectController implements CleanupControl {
 	private static final Logger LOG = Logger
@@ -48,6 +50,8 @@ public class BrowseAndSelectController implements CleanupControl {
 	class PurchaseOnlineActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 		
+			WaitDialog wd = new WaitDialog();
+			wd.show("Retrieve catalog list.");
 			try {
 				List<String[]> catalogs = 
 						(new ProductSubsystemFacade()).getCatalogNames();
@@ -60,6 +64,9 @@ public class BrowseAndSelectController implements CleanupControl {
 				String errMsg = "Database inaccessible: " + dbe.getMessage();
 				JOptionPane.showMessageDialog(catalogListWindow, errMsg, "Error",
 						JOptionPane.ERROR_MESSAGE);
+			}
+			finally {
+				wd.clear();
 			}
 		}
 	}
@@ -74,14 +81,39 @@ public class BrowseAndSelectController implements CleanupControl {
 			}
 		}
 	}
-
+	
+	/*
+	 * homay @Nov.18
+	 */
 	class RetrieveCartActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			if (cartItemsWindow == null) {
 				cartItemsWindow = new CartItemsWindow();
+				mainFrame.getDesktop().add(catalogListWindow);
 			}
 			EbazaarMainFrame.getInstance().getDesktop().add(cartItemsWindow);
-			cartItemsWindow.setVisible(true);
+			IShoppingCartSubsystem shcss = ShoppingCartSubsystemFacade.getInstance(); 
+			List<ICartItem> items = shcss.getLiveCartItems();
+			List<String[]> itemList = new ArrayList<String[]>();
+			System.out.println("*** Items in Shopping Cart" + items.size());
+			if (items.size() == 0) {
+				JOptionPane.showMessageDialog(mainFrame, "The Shopping Cart Is empty. Continue Shopping.", ":",
+						JOptionPane.INFORMATION_MESSAGE);
+				PurchaseOnlineActionListener shopping 
+								= new PurchaseOnlineActionListener();
+				shopping.actionPerformed(null);
+			}
+			else {
+				for (ICartItem ci : items) {
+					String unitPrice 
+						= Double.toString(Double.valueOf(ci.getTotalprice())
+										/Integer.valueOf(ci.getQuantity()));
+					itemList.add(new String[]{ci.getProductName(),ci.getQuantity()
+												, ci.getTotalprice(), unitPrice});
+				}
+				cartItemsWindow.updateModel(itemList);
+				cartItemsWindow.setVisible(true);
+			}
 		}
 	}
 
@@ -207,9 +239,28 @@ public class BrowseAndSelectController implements CleanupControl {
 			quantityWindow.setParentWindow(productDetailsWindow);
 		}
 	}
-
+	/*
+	 * homayoon @Nov.18
+	 */
+	class DeleteShoppingCartItemListener implements ActionListener {
+		public void actionPerformed(ActionEvent evt) {
+			
+		}
+	}
+	class EditShoppingCartItemListener implements ActionListener {
+		public void actionPerformed(ActionEvent evt) {
+			cartItemsWindow.setVisible(false);
+			quantityWindow = new QuantityWindow(false, null);
+			EbazaarMainFrame.getInstance().getDesktop().add(quantityWindow);
+			quantityWindow.setVisible(true);
+			quantityWindow.setParentWindow(productDetailsWindow);			
+		}
+	}
+	
 	class QuantityOkListener implements ActionListener {
-
+		QuantityOkListener() {
+			System.out.println("*** Initialize QuantityOkListener ***");
+		}
 		public void actionPerformed(ActionEvent evt) {
 
 			/*
@@ -232,12 +283,14 @@ public class BrowseAndSelectController implements CleanupControl {
 			boolean err = false;
 			try {
 	            dbQty.readQuantityAvail(productDetailsWindow.getItem());
-	            System.out.println(qty.getQuantityAvailable());
+	            LOG.fine("Read Quantity of " + productDetailsWindow.getItem() + " From Table");
 	        }
 	        catch(DatabaseException dbe){
 				String errMsg = "Database inaccessible: " + dbe.getMessage();
 				JOptionPane.showMessageDialog(catalogListWindow, errMsg, "Error",
-						JOptionPane.ERROR_MESSAGE);				        }			
+						JOptionPane.ERROR_MESSAGE);	
+				err = true;
+			}			
 			IRules rules = new RulesQuantity(qty);
 			try {
 				rules.runRules();
@@ -251,23 +304,51 @@ public class BrowseAndSelectController implements CleanupControl {
 				JOptionPane.showMessageDialog(quantityWindow, errMsg, "Error",
 						JOptionPane.ERROR_MESSAGE);					
 			}
-			finally {
-				if (err)
-					quantityWindow.setVisible(true);
-				else {
-					quantityWindow.dispose();
-					cartItemsWindow = new CartItemsWindow();
-					EbazaarMainFrame.getInstance().getDesktop().add(cartItemsWindow);
-					cartItemsWindow.setVisible(true);
+
+			if (err)
+				quantityWindow.setVisible(true);
+			else 
+			{
+				WaitDialog wd = new WaitDialog();
+				wd.show("update total quantity");
+				
+				quantityWindow.dispose();
+				IShoppingCartSubsystem shcss = ShoppingCartSubsystemFacade.getInstance();
+				
+				// should update totalquantity in database
+				int newQty = Integer.valueOf(qty.getQuantityAvailable())-Integer.valueOf(qty.getQuantityRequested());
+				qty.setQuantityAvailable(Integer.toString(newQty));
+				dbQty.setQuantity(qty);
+				try {
+		            dbQty.updateQuantityAvail(productDetailsWindow.getItem());
+		            LOG.fine("Update Quantity of " + productDetailsWindow.getItem() + " into product Table");
+					shcss.addCartItem(productDetailsWindow.getItem()
+							, qty.getQuantityRequested()
+							, Double.toString(productDetailsWindow.getPrice()));
+		        }
+		        catch(DatabaseException dbe){
+					String errMsg = "Database inaccessible: " + dbe.getMessage();
+					JOptionPane.showMessageDialog(catalogListWindow, errMsg, "Error",
+							JOptionPane.ERROR_MESSAGE);				        
+				}		
+				finally {
+					wd.clear();
 				}
+				
+				RetrieveCartActionListener shopCart 
+								= new RetrieveCartActionListener();
+				shopCart.actionPerformed(null);
 			}
 		}
 	}
 
+	/*
+	 * homayoon @Nov.18
+	 */
 	class BackToProductListListener implements ActionListener {
 		public void actionPerformed(ActionEvent evt) {
 			productDetailsWindow.setVisible(false);
-			productListWindow.setVisible(true);
+			catalogListWindow.setVisible(true);
 		}
 	}
 
@@ -390,7 +471,6 @@ public class BrowseAndSelectController implements CleanupControl {
 	}
 
 	// ProductDetails Window
-
 	public ActionListener getAddToCartListener(ProductDetailsWindow w) {
 		return new AddCartItemListener();
 	}
@@ -407,6 +487,16 @@ public class BrowseAndSelectController implements CleanupControl {
 
 	public ActionListener getSaveCartListener(CartItemsWindow w) {
 		return (new SaveCartListener());
+	}
+
+	/*
+	 * homayoon @Nov.18 
+	 */
+	public ActionListener getDeleteShoppingCartItemListener(CartItemsWindow w) {
+		return new DeleteShoppingCartItemListener();
+	}
+	public ActionListener getEditShoppingCartItemListener(CartItemsWindow w) {
+		return new EditShoppingCartItemListener();
 	}
 
 	public ActionListener getQuantityOkListener(QuantityWindow w, boolean edit,

@@ -146,5 +146,11 @@ public class AddEditCatalog extends JInternalFrame implements ParentWindow {
 		
 		
 	}
+	public String getCatalog(){
+		return productNameField.getText();
+	}
+	public void setCatalog(String catalog){
+		 productNameField.setText(catalog);
+	}
 	private static final long serialVersionUID = 1L;	
 }

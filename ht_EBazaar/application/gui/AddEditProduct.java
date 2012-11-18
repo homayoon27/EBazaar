@@ -7,6 +7,8 @@ import java.awt.GridLayout;
 import java.awt.Window;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 
 import javax.swing.Action;
@@ -155,9 +157,9 @@ public class AddEditProduct extends JInternalFrame implements ParentWindow, ICom
 		labelName = "Catalog";
 		makeLabel(gridPanel,labelName);
 		catalogGroupField = new JComboBox();
-		catalogGroupField.addItem(DefaultData.BOOKS);
-		catalogGroupField.addItem(DefaultData.CLOTHES);
-		catalogGroupField.setSelectedItem(catalogGroup);
+		//catalogGroupField.addItem(DefaultData.BOOKS);
+		//catalogGroupField.addItem(DefaultData.CLOTHES);
+		//catalogGroupField.setSelectedItem(catalogGroup);
 		if(isEditMode()) catalogGroupField.setEnabled(false);
 		
 		Action comboAction = control.getComboAction(this);
@@ -240,8 +242,38 @@ public class AddEditProduct extends JInternalFrame implements ParentWindow, ICom
 	public void setCatalogGroup(String catalogGroup) {
 		this.catalogGroup = catalogGroup;
 	}	
+	public JComboBox getCatalogGroup() {
+		return catalogGroupField ;
+		}
+	
 	public void refreshData() {
 		//loadFieldValues();
 		//repaint();
+	}
+	public void updateCombocatalog(List<String[]> items)
+	{
+		Iterator<String[]> iterator=items.iterator();
+		while(iterator.hasNext())
+		{
+		   String catalog=iterator.next()[0];	 
+		   catalogGroupField.addItem(catalog);
+		 
+		}	
+	}
+	
+	public String getproductNameField(){
+		return productNameField.getText();
+	}
+	public String getcatalogGroupField(){
+		return (String)catalogGroupField.getSelectedItem();
+	}
+	public String  getpricePerUnitField(){
+		return pricePerUnitField.getText();
+	}
+	public String getmfgDateField(){
+		return mfgDateField.getText();
+	}
+	public String getquantityField(){
+		return quantityField.getText();
 	}
 }

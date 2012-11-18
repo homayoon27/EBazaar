@@ -130,7 +130,7 @@ public class LoginControl {
 				else
 					currWindow.setVisible(true);
 			} else
-				parentWindow.setVisible(true);
+			parentWindow.setVisible(true);
 		}
 	}
 

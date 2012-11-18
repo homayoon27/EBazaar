@@ -29,6 +29,11 @@ public class ProductSubsystemFacade implements IProductSubsystem {
 	private final static Logger Log=Logger.getLogger(ProductSubsystemFacade.class.getCanonicalName());
 	final String DEFAULT_PROD_DESCRIPTION="New Product";
 	CatalogTypes types;
+	
+	public List<String[]> getCatalogNamesFromNames() throws DatabaseException {
+		DbClassCatalogTypes dbclass = new DbClassCatalogTypes();
+		return dbclass.getCatalogTypes().getCatalogNames();
+	}
 	//Log.fine("Inside product subsystem"); to put on some method 
     public TwoKeyHashMap<Integer, String, IProductFromDb> getProductTable() throws DatabaseException {
         DbClassProduct dbClass = new DbClassProduct();
@@ -41,9 +46,10 @@ public class ProductSubsystemFacade implements IProductSubsystem {
 	}
 	
 	
+	
 	public void saveNewProduct(IProductFromGui product, String catalogType) throws DatabaseException {
 		//get catalogid
-		Integer catalogid = 1;//getCatalogIdFromType(catalogType); 
+		Integer catalogid =getCatalogIdFromName(catalogType);//getCatalogIdFromType(catalogType); 
 				//invent description
 		String description = DEFAULT_PROD_DESCRIPTION;
 		DbClassProduct dbclass = new DbClassProduct();
@@ -61,21 +67,29 @@ public class ProductSubsystemFacade implements IProductSubsystem {
 	}
 	@Override
 	public List<String[]> getCatalogNames() throws DatabaseException {
-		List<String[]> catNames=new ArrayList<String[]>();// TODO Auto-generated method stub
-		String[] arr1={"Books"};
-		String[] arr2={"Clothing"};				
-				catNames.add(arr1);
-		        catNames.add(arr2);
-		        return catNames;
+		DbClassCatalog dbclass = new DbClassCatalog();
+		return dbclass.getCatalogNames();
+		
+		//Stab
+//		List<String[]> catNames=new ArrayList<String[]>();// TODO Auto-generated method stub
+//		String[] arr1={"Books"};
+//		String[] arr2={"Clothing"};				
+//				catNames.add(arr1);
+//		        catNames.add(arr2);
+//		        return catNames;
 	}
 	@Override
 	public List<String[]> refreshCatalogNames() throws DatabaseException {
-		List<String[]> catNames=new ArrayList<String[]>();// TODO Auto-generated method stub
+		DbClassCatalog dbclass = new DbClassCatalog();
+		return dbclass.getCatalogNames();
+		
+		//Stab
+		/*List<String[]> catNames=new ArrayList<String[]>();// TODO Auto-generated method stub
 		String[] arr1={"Books"};
 		String[] arr2={"Clothing"};				
 				catNames.add(arr1);
 		        catNames.add(arr2);		        
-		        return catNames;
+		        return catNames;*/
 	}
 	@Override
 	public Integer getCatalogIdFromName(String catName) throws DatabaseException {
@@ -106,19 +120,20 @@ public class ProductSubsystemFacade implements IProductSubsystem {
 	@Override
 	public List<IProductFromDb> refreshProductList(String catType)
 			throws DatabaseException {
-		IProductFromDb product=new Product(1, "TestBook", "10","5.00","11/11/00",1,"This is test");
+		DbClassProduct dbclass = new DbClassProduct();
+		Integer catId = getCatalogIdFromName(catType);	
+		List<IProductFromDb> list = dbclass.refreshProductList(catId);	
+		return list;
+		
+		//stab
+		/*IProductFromDb product=new Product(1, "TestBook", "10","5.00","11/11/00",1,"This is test");
 		List<IProductFromDb> list=new ArrayList<IProductFromDb>();
 		list.add(product);
 		// TODO Auto-generated method stub
 		return list;// TODO Auto-generated method stub
-		//return null;
+		//return null;*/
 	}
-//	public static void main(String[] args) throws DatabaseException
-//	{
-//		IProductSubsystem sub = new ProductSubsystemFacade();
-//		System.out.println(sub.getCatalogIdFromName("books"));
-//		
-//	}
+
 ////	@Override
 	//return product ID
 	public String getProductIdFromName(String prodName)throws DatabaseException {
@@ -148,19 +163,33 @@ public class ProductSubsystemFacade implements IProductSubsystem {
 	}
 	@Override
 	public void saveNewCatalogName(String name) throws DatabaseException {
-		// TODO Auto-generated method stub
+		DbClassCatalog newCatalog=new DbClassCatalog();
+		newCatalog.saveNewCatalog(name);// TODO Auto-generated method stub
 		
 	}
 	@Override
 	public IProductFromGui createProduct(String name, String date,
 			String numAvail, String unitPrice) {
 		// TODO Auto-generated method stub
-		return null;
+		return new Product(name,date,numAvail,unitPrice);
 	}
 	
 	public void runQuantityRules(business.externalinterfaces.Quantity quantity)
 			throws RuleException, EBazaarException {
 		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void deleteProduct(String prodName) throws DatabaseException {
+		DbClassProduct dbProd = new DbClassProduct();
+		dbProd.deleteproduct(prodName);
+				
+	
+	}
+	@Override
+	public void deleteCatalog(String catalogType) throws DatabaseException {
+		DbClassCatalog dbCatalog=new DbClassCatalog();
+		dbCatalog.deleteCatalog(catalogType);// TODO Auto-generated method stub
 		
 	}
 	

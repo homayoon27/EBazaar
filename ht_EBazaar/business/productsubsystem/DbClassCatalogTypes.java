@@ -18,18 +18,24 @@ import middleware.externalinterfaces.DbConfigKey;
  */
 public class DbClassCatalogTypes implements IDbClass {
 
-    private String query;
+   
+	private String query;
     private String queryType;
     final String GET_TYPES = "GetTypes";
-    private CatalogTypes types;
-    
+   // final String READ = "Read";
+   // private CatalogTypes types;
+    CatalogTypes types=new CatalogTypes();
     public CatalogTypes getCatalogTypes() throws DatabaseException {
-    	//IMPLEMENT
-        return new CatalogTypes();       
+    //IMPLEMENT
+    	queryType=GET_TYPES;
+    	IDataAccessSubsystem daccess = new DataAccessSubsystemFacade();
+    	daccess.atomicRead(this);
+        return types ;
+    	//return types.getInstance();
     }
     
     public void buildQuery() {
-        if(queryType.equals(GET_TYPES)){
+        if(queryType.equals(GET_TYPES)){//||queryType.equals(READ)){
             buildGetTypesQuery();
         }
     }
@@ -42,10 +48,21 @@ public class DbClassCatalogTypes implements IDbClass {
      */
     public void populateEntity(ResultSet resultSet) throws DatabaseException {
         types = new CatalogTypes();
+        try {
+			while(resultSet.next()){
+				String name = resultSet.getString("catalogname");
+				Integer id=resultSet.getInt("catalogid");			
+				types.addCatalog(id, name);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+       
+    }  
         //IMPLEMENT
         
-    }
-
+    
     public String getDbUrl() {
     	DbConfigProperties props = new DbConfigProperties();	
     	return props.getProperty(DbConfigKey.PRODUCT_DB_URL.getVal());
