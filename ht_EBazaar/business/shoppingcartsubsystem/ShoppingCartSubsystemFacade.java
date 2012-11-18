@@ -4,6 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.swing.JOptionPane;
+
 import middleware.DatabaseException;
 import middleware.EBazaarException;
 import business.RuleException;
@@ -23,30 +25,48 @@ public class ShoppingCartSubsystemFacade implements IShoppingCartSubsystem {
 	Logger log = Logger.getLogger(this.getClass().getPackage().getName());
 
 	// interface methods
+	/*
+	 * homayoon finalized
+	 */
 	public void setCustomerProfile(ICustomerProfile customerProfile) {
 		this.customerProfile = customerProfile;
 	}
 
+	/*
+	 * homayoon finalized
+	 */
 	public void retrieveSavedCart() throws DatabaseException {
 
 		Integer val = getShoppingCartId();
 		if (val != null) {
+			log.info("Customer saved cart id: " + shopCartId);
 			shopCartId = val;
-			log.info("cart id: " + shopCartId);
 			List<ICartItem> items = getCartItems(shopCartId);
 			log.info("list of items: " + items);
 			savedCart = new ShoppingCart(items);
 		} else {
 			savedCart = new ShoppingCart();
 		}
+		
+		if (liveCart != null) {
+			if (JOptionPane.showConfirmDialog(null,
+					"There is a Saved Shopping Cart. Do you want to use it as live Cart?", "Choose cart"
+					, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION )
+				makeSavedCartLive();
+		}
+		else
+			makeSavedCartLive();
 
 	}
 
 	// supporting methods
 
 	Integer getShoppingCartId() throws DatabaseException {
-		DbClassShoppingCart dbClass = new DbClassShoppingCart();
-		return dbClass.getShoppingCartId(customerProfile);
+		if (customerProfile != null) {
+			DbClassShoppingCart dbshop = new DbClassShoppingCart();
+			return dbshop.getShoppingCartId(customerProfile);
+		}
+		return 0;
 	}
 
 	List<ICartItem> getCartItems(Integer shopCartId) throws DatabaseException {
@@ -102,7 +122,6 @@ public class ShoppingCartSubsystemFacade implements IShoppingCartSubsystem {
 		} else {
 			return liveCart.getCartItems();
 		}
-
 	}
 
 	public void setShippingAddress(IAddress addr) {
@@ -116,7 +135,6 @@ public class ShoppingCartSubsystemFacade implements IShoppingCartSubsystem {
 
 	public void setPaymentInfo(ICreditCard cc) {
 		liveCart.setPaymentInfo(cc);
-
 	}
 
 	public IShoppingCart getLiveCart() {
@@ -128,9 +146,8 @@ public class ShoppingCartSubsystemFacade implements IShoppingCartSubsystem {
 	}
 
 	public void saveLiveCart() {
-		//IMPLEMENTED
-		liveCart = 
-		makeSavedCartLive();
+		//IMPLEMENTED 
+		//makeSavedCartLive();
 	}
 
 	public void runShoppingCartRules() throws RuleException, EBazaarException {
@@ -140,11 +157,12 @@ public class ShoppingCartSubsystemFacade implements IShoppingCartSubsystem {
 		transferObject.runRules();
 	}
 
-	@Override
+	/*
+	 * homayoon @Nov.17
+	 */
 	public void addCartItem(String itemName, String quantity, String totalPrice)
 			throws DatabaseException {
-		// TODO Auto-generated method stub
-
+		liveCart.addItem(new CartItem(itemName, quantity, totalPrice));
 	}
 
 }

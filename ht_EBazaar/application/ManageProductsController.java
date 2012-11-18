@@ -129,8 +129,8 @@ public class ManageProductsController implements CleanupControl {
 		 * this method is called when LoginControl needs this class to load
 		 * catalogs
 		 */
-		public void doUpdate() {	
-			// implement by requesting catalog list from Product Subsystem	
+		public void doUpdate() {
+			// implement by requesting catalog list from Product Subsystem
 		}
 
 		public void actionPerformed(ActionEvent e) {
@@ -313,12 +313,14 @@ public class ManageProductsController implements CleanupControl {
 			String selectedValue = (String) ((JComboBox) evt.getSource())
 					.getSelectedItem();
 			IProductSubsystem prodSS = new ProductSubsystemFacade();
-			
-			//IMPLEMENT
-			/* will work when ProductSubsystemFacade is completed
-			List<String[]> associatedProducts = business.util.ProductUtil
-					.extractProductInfoForManager(prodSS
-							.getProductList(selectedValue));*/
+
+			// IMPLEMENT
+			/*
+			 * will work when ProductSubsystemFacade is completed List<String[]>
+			 * associatedProducts = business.util.ProductUtil
+			 * .extractProductInfoForManager(prodSS
+			 * .getProductList(selectedValue));
+			 */
 			List<String[]> associatedProducts = new ArrayList<String[]>();
 			for (IComboObserver o : observers) {
 				if (o != null) {
@@ -330,7 +332,7 @@ public class ManageProductsController implements CleanupControl {
 				maintainProductCatalog.updateModel(associatedProducts);
 				maintainProductCatalog.repaint();
 			}
-		
+
 		}
 
 	}

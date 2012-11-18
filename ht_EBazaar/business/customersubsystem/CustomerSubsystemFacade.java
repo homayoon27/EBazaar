@@ -1,7 +1,9 @@
 package business.customersubsystem;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Queue;
 import java.util.logging.Logger;
 
 import middleware.DatabaseException;
@@ -9,8 +11,23 @@ import middleware.EBazaarException;
 import middleware.creditverifcation.CreditVerificationFacade;
 import middleware.externalinterfaces.ICreditVerification;
 import business.RuleException;
-import business.externalinterfaces.*;
+import business.externalinterfaces.IAddress;
+import business.externalinterfaces.ICartItem;
+import business.externalinterfaces.ICreditCard;
+import business.externalinterfaces.ICustomerProfile;
+import business.externalinterfaces.ICustomerSubsystem;
+import business.externalinterfaces.IOrder;
+import business.externalinterfaces.IOrderSubsystem;
+import business.externalinterfaces.IRules;
+import business.externalinterfaces.IShoppingCart;
+import business.externalinterfaces.IShoppingCartSubsystem;
 import business.ordersubsystem.OrderSubsystemFacade;
+import business.productsubsystem.ProductSubsystemFacade;
+
+import business.rulesbeans.AddressBean;
+import business.rulesbeans.PaymentBean;
+import business.rulesbeans.QuantityBean;
+import business.rulesubsystem.RulesSubsystemFacade;
 import business.shoppingcartsubsystem.ShoppingCartSubsystemFacade;
 import business.util.OrderUtil;
 

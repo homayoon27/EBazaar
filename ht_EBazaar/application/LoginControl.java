@@ -1,7 +1,6 @@
 package application;
 
 import java.awt.Component;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JOptionPane;
@@ -12,9 +11,9 @@ import business.Login;
 import business.SessionContext;
 import business.customersubsystem.CustomerSubsystemFacade;
 import business.externalinterfaces.*;
+import business.shoppingcartsubsystem.ShoppingCartSubsystemFacade;
 import application.gui.EbazaarMainFrame;
 import application.gui.LoginWindow;
-import application.gui.ParentWindow;
 
 /**
  * @author pcorazza
@@ -25,7 +24,7 @@ import application.gui.ParentWindow;
  */
 public class LoginControl {
 
-	private SessionContext context;
+	//private SessionContext context;
 	private LoginWindow loginWindow;
 	private Controller controller;
 
@@ -49,9 +48,7 @@ public class LoginControl {
 	}
 
 	public void startLogin() {
-		context = SessionContext.getInstance();
 		loginWindow = new LoginWindow(this);
-
 		EbazaarMainFrame.getInstance().getDesktop().add(loginWindow);
 		if (!parentIsOuterFrame)
 			parentWindow.setVisible(false);

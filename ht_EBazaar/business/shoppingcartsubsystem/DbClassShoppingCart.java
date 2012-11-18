@@ -65,6 +65,9 @@ public class DbClassShoppingCart implements IDbClass {
         else if(queryType.equals(DELETE_CART_ITEM)){
             buildDeleteCartItemQuery();
         }
+        
+        if (queryType != null)
+        	LOG.fine(query);
     }
 
     private void buildDeleteCartQuery(){
@@ -146,11 +149,11 @@ public class DbClassShoppingCart implements IDbClass {
                 + ");"
                 ;
     }
-
+    
     private void buildGetIdQuery(){
-        query = "SELECT shopcartid "+
-                "FROM ShopCartTbl "+
-                "WHERE custid = "+custProfile.getCustId();               
+        query = "SELECT shopcartid "
+                + "FROM ShopCartTbl "
+                + "WHERE custid = " + custProfile.getCustId();               
     }
     
     /*
@@ -215,7 +218,6 @@ public class DbClassShoppingCart implements IDbClass {
      * homayoon @Nov.17
      */   
     public List<ICartItem> getSavedCartItems(Integer cartId) throws DatabaseException {
-        //IMPLEMENTED
     	this.cartId = cartId;
     	queryType = GET_SAVED_ITEMS;
     	dataAccessSS.atomicRead(this);
@@ -230,6 +232,7 @@ public class DbClassShoppingCart implements IDbClass {
             populateCartItemsList(resultSet);
         }        
     }
+
     private void populateShopCartId(ResultSet rs){
         try {
             if(rs.next()){
@@ -257,6 +260,8 @@ public class DbClassShoppingCart implements IDbClass {
     							, rs.getString("totalprice")
     							, false);
     			cartItemsList.add(ci);
+    			
+    			LOG.fine(ci.toString());
     		}
     	}
         catch(SQLException e){

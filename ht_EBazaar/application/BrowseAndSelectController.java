@@ -323,12 +323,10 @@ public class BrowseAndSelectController implements CleanupControl {
 		public void actionPerformed(ActionEvent evt) {
 			IShoppingCartSubsystem shcss = ShoppingCartSubsystemFacade.getInstance();
 			SessionContext sctx = SessionContext.getInstance();
-			ICustomerSubsystem css = (ICustomerSubsystem)sctx.get(CustomerConstants.CUSTOMER);
 			Boolean loggedIn = (Boolean) sctx.get(CustomerConstants.LOGGED_IN);
 			if (!loggedIn.booleanValue()) {
 				LoginControl loginControl = new LoginControl(cartItemsWindow, mainFrame, this);
 				loginControl.startLogin();
-				shcss.setCustomerProfile(css.getCustomerProfile());
 				System.out.println("Successful Login.");
 			} else {
 				mainFrame.getDesktop().add(maintainProductCatalog);
