@@ -75,4 +75,9 @@ public interface IShoppingCartSubsystem {
 	public void makeSavedCartLive();
 
 	public void saveLiveCart();
+	/*
+	 * homayoon @Nov.19
+	 */
+	public boolean deleteCartItem(String itemName);
+
 }

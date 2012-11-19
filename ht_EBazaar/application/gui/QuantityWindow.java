@@ -118,6 +118,13 @@ public class QuantityWindow extends JInternalFrame {
     public String getQuantityDesired(){
         return (quantityField==null ? "1" : quantityField.getText());
     }
+    /*
+     * homayoon @Nov.19
+     */
+    public void setQuantityDesired(int qty){
+        quantityField.setText(qty+"");
+    }
+    
     public void setParentWindow(Component parentWindow) {
         parent = parentWindow;
     }

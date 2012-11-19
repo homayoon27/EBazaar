@@ -286,6 +286,12 @@ public class BrowseAndSelectController implements CleanupControl {
 		public void actionPerformed(ActionEvent evt) {
 			productDetailsWindow.setVisible(false);
 			quantityWindow = new QuantityWindow(false, null);
+			JTable table = cartItemsWindow.getTable();
+			int selectedRow = table.getSelectedRow();
+			String qty = "1";
+			if (selectedRow >= 0)
+				qty = (String) table.getValueAt(selectedRow, 1);
+			quantityWindow.setQuantityDesired(Integer.valueOf(qty));
 			EbazaarMainFrame.getInstance().getDesktop().add(quantityWindow);
 			quantityWindow.setVisible(true);
 			quantityWindow.setParentWindow(productDetailsWindow);
@@ -296,9 +302,31 @@ public class BrowseAndSelectController implements CleanupControl {
 	 */
 	class DeleteShoppingCartItemListener implements ActionListener {
 		public void actionPerformed(ActionEvent evt) {
-			
+			JTable table = cartItemsWindow.getTable();
+			int selectedRow = table.getSelectedRow();
+			List<ICartItem> cartItems = null;
+			if (selectedRow >= 0) {				
+				IShoppingCartSubsystem shcss = ShoppingCartSubsystemFacade.getInstance();
+				shcss.deleteCartItem(selectedRow+"");
+				cartItems = shcss.getLiveCartItems();
+				/*
+				try {
+					cartItems = shcss.getLiveCartItems();
+				}
+		        catch(DatabaseException dbe){
+					String errMsg = "Database inaccessible: " + dbe.getMessage();
+					JOptionPane.showMessageDialog(catalogListWindow, errMsg, "Error",
+							JOptionPane.ERROR_MESSAGE);				        
+				}
+				*/		
+				List<String[]> cartItemsList = ShoppingCartUtil.cartItemsToStringArrays(cartItems);
+				cartItemsWindow.updateModel(cartItemsList);
+				cartItemsWindow.setVisible(true);
+
+			}			
 		}
 	}
+	
 	class EditShoppingCartItemListener implements ActionListener {
 		public void actionPerformed(ActionEvent evt) {
 			cartItemsWindow.setVisible(false);
@@ -399,7 +427,8 @@ public class BrowseAndSelectController implements CleanupControl {
 						catalogListWindow.updateModel(catalogs);
 						catalogListWindow.setVisible(true);
 						LOG.info("Continue shopping.");
-					} catch (DatabaseException dbe) {
+					} 
+					catch (DatabaseException dbe) {
 						String errMsg = "Database inaccessible: " + dbe.getMessage();
 						JOptionPane.showMessageDialog(catalogListWindow, errMsg, "Error",
 								JOptionPane.ERROR_MESSAGE);
