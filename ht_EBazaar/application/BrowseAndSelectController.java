@@ -39,35 +39,29 @@ import application.gui.ProductDetailsWindow;
 import application.gui.ProductListWindow;
 import application.gui.QuantityWindow;
 import application.gui.SelectOrderWindow;
-import application.gui.WaitDialog;
 
 public class BrowseAndSelectController implements CleanupControl {
 	private static final Logger LOG = Logger
 			.getLogger("BrowseAndSelectController.class.getName()");
 
-	// homayoon @Nov.15
+	/*
+	 * homayoon @Nov.15
+	 */
 	// control of mainFrame
 	class PurchaseOnlineActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-		
-			WaitDialog wd = new WaitDialog();
-			wd.show("Retrieve catalog list.");
+			catalogListWindow = new CatalogListWindow();
 			try {
-				List<String[]> catalogs = 
-						(new ProductSubsystemFacade()).getCatalogNames();
-				catalogListWindow = new CatalogListWindow();
-				mainFrame.getDesktop().add(catalogListWindow);
+				List<String[]> catalogs = (new ProductSubsystemFacade()).getCatalogNames();
 				catalogListWindow.updateModel(catalogs);
-				catalogListWindow.setVisible(true);
 				LOG.info("Purchase online selected.");
 			} catch (DatabaseException dbe) {
 				String errMsg = "Database inaccessible: " + dbe.getMessage();
 				JOptionPane.showMessageDialog(catalogListWindow, errMsg, "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}
-			finally {
-				wd.clear();
-			}
+			mainFrame.getDesktop().add(catalogListWindow);
+			catalogListWindow.setVisible(true);
 		}
 	}
 
@@ -89,19 +83,29 @@ public class BrowseAndSelectController implements CleanupControl {
 		public void actionPerformed(ActionEvent e) {
 			if (cartItemsWindow == null) {
 				cartItemsWindow = new CartItemsWindow();
-				mainFrame.getDesktop().add(catalogListWindow);
 			}
 			EbazaarMainFrame.getInstance().getDesktop().add(cartItemsWindow);
 			IShoppingCartSubsystem shcss = ShoppingCartSubsystemFacade.getInstance(); 
 			List<ICartItem> items = shcss.getLiveCartItems();
 			List<String[]> itemList = new ArrayList<String[]>();
-			System.out.println("*** Items in Shopping Cart" + items.size());
 			if (items.size() == 0) {
-				JOptionPane.showMessageDialog(mainFrame, "The Shopping Cart Is empty. Continue Shopping.", ":",
+				JOptionPane.showMessageDialog(null
+						, "The Shopping Cart Is empty. Continue Shopping.", ":",
 						JOptionPane.INFORMATION_MESSAGE);
-				PurchaseOnlineActionListener shopping 
-								= new PurchaseOnlineActionListener();
-				shopping.actionPerformed(null);
+				try {
+					List<String[]> catalogs = (new ProductSubsystemFacade()).getCatalogNames();
+					if (catalogListWindow == null){
+						catalogListWindow = new CatalogListWindow();
+						mainFrame.getDesktop().add(catalogListWindow);
+					}
+					catalogListWindow.updateModel(catalogs);
+					catalogListWindow.setVisible(true);
+					LOG.info("Purchase online selected.");
+				} catch (DatabaseException dbe) {
+					String errMsg = "Database inaccessible: " + dbe.getMessage();
+					JOptionPane.showMessageDialog(catalogListWindow, errMsg, "Error",
+							JOptionPane.ERROR_MESSAGE);
+				}
 			}
 			else {
 				for (ICartItem ci : items) {
@@ -126,7 +130,9 @@ public class BrowseAndSelectController implements CleanupControl {
 			JTable table = catalogListWindow.getTable();
 			int selectedRow = table.getSelectedRow();
 			if (selectedRow >= 0) {
+				catalogListWindow.setVisible(false);
 				String type = (String) table.getValueAt(selectedRow, 0);
+				LOG.info("Selected type: " + type);
 				try {
 					List<IProductFromDb> prodList = 
 							(new ProductSubsystemFacade()).getProductList(type);
@@ -135,10 +141,11 @@ public class BrowseAndSelectController implements CleanupControl {
 						String[] row = {prod.getProductName()};
 						products.add(row);
 					}
-					productListWindow = new ProductListWindow(type);
+					if (productListWindow == null){
+						productListWindow = new ProductListWindow(type);
+						mainFrame.getDesktop().add(productListWindow);
+					}
 					productListWindow.updateModel(products);
-					catalogListWindow.setVisible(false);
-					mainFrame.getDesktop().add(productListWindow);
 					productListWindow.setVisible(true);
 					LOG.info("Selected type: " + type + " shown.");
 					
@@ -309,8 +316,8 @@ public class BrowseAndSelectController implements CleanupControl {
 				quantityWindow.setVisible(true);
 			else 
 			{
-				WaitDialog wd = new WaitDialog();
-				wd.show("update total quantity");
+				//WaitDialog wd = new WaitDialog();
+				//wd.show("update total quantity");
 				
 				quantityWindow.dispose();
 				IShoppingCartSubsystem shcss = ShoppingCartSubsystemFacade.getInstance();
@@ -331,13 +338,44 @@ public class BrowseAndSelectController implements CleanupControl {
 					JOptionPane.showMessageDialog(catalogListWindow, errMsg, "Error",
 							JOptionPane.ERROR_MESSAGE);				        
 				}		
-				finally {
-					wd.clear();
+				// go to CartItems to continue shopping
+				//EbazaarMainFrame.getInstance().getDesktop().add(cartItemsWindow);
+				List<ICartItem> items = shcss.getLiveCartItems();
+				if (items.size() == 0){
+					JOptionPane.showMessageDialog(mainFrame
+							, "The Shopping Cart Is empty. Continue Shopping.", ":",
+							JOptionPane.INFORMATION_MESSAGE);
+					try {
+						List<String[]> catalogs = (new ProductSubsystemFacade()).getCatalogNames();
+						if (catalogListWindow == null){
+							catalogListWindow = new CatalogListWindow();
+							mainFrame.getDesktop().add(catalogListWindow);
+						}
+						catalogListWindow.updateModel(catalogs);
+						catalogListWindow.setVisible(true);
+						LOG.info("Continue shopping.");
+					} catch (DatabaseException dbe) {
+						String errMsg = "Database inaccessible: " + dbe.getMessage();
+						JOptionPane.showMessageDialog(catalogListWindow, errMsg, "Error",
+								JOptionPane.ERROR_MESSAGE);
+					}
 				}
-				
-				RetrieveCartActionListener shopCart 
-								= new RetrieveCartActionListener();
-				shopCart.actionPerformed(null);
+				else{
+					List<String[]> itemList = new ArrayList<String[]>();
+					for (ICartItem ci : items) {
+						String unitPrice 
+							= Double.toString(Double.valueOf(ci.getTotalprice())
+											/Integer.valueOf(ci.getQuantity()));
+						itemList.add(new String[]{ci.getProductName(),ci.getQuantity()
+													, ci.getTotalprice(), unitPrice});
+					}
+					if (cartItemsWindow == null) {
+						cartItemsWindow = new CartItemsWindow();
+						mainFrame.getDesktop().add(cartItemsWindow);
+					}
+					cartItemsWindow.updateModel(itemList);
+					cartItemsWindow.setVisible(true);
+				}
 			}
 		}
 	}
@@ -402,38 +440,16 @@ public class BrowseAndSelectController implements CleanupControl {
 		public void doUpdate() {}
 
 		public void actionPerformed(ActionEvent evt) {
-			IShoppingCartSubsystem shcss = ShoppingCartSubsystemFacade.getInstance();
 			SessionContext sctx = SessionContext.getInstance();
 			Boolean loggedIn = (Boolean) sctx.get(CustomerConstants.LOGGED_IN);
 			if (!loggedIn.booleanValue()) {
 				LoginControl loginControl = new LoginControl(cartItemsWindow, mainFrame, this);
 				loginControl.startLogin();
 				System.out.println("Successful Login.");
-			} else {
-				mainFrame.getDesktop().add(maintainProductCatalog);
-				maintainProductCatalog.setVisible(true);
-			}
-			IShoppingCart curCard = shcss.getLiveCart();
-			String curtId = curCard.getCartId();
-			if (curtId == null) {
-				
-			}
-			else {
-				
-			}
+			} 
 			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
+			IShoppingCartSubsystem shcss = ShoppingCartSubsystemFacade.getInstance();
+			shcss.saveLiveCart();
 		}
 	}
 		

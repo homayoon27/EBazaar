@@ -95,17 +95,17 @@ public class ShoppingCartSubsystemFacade implements IShoppingCartSubsystem {
 	 */
 	public void addCartItem(String itemName, String quantity, String totalPrice)
 			throws DatabaseException {
-		addCartItem(itemName, quantity, totalPrice, null);
+		addCartItem(itemName, quantity, totalPrice, -1);
 	}
 	public void addCartItem(String itemName, String quantity,
 			String totalPrice, Integer pos) throws DatabaseException {
 		// if a saved cart has been retrieved, it will be the live cart, unless
 		// user has already added items to a new cart
-		if (liveCart == null) {
+		if (liveCart == null)
 			liveCart = new ShoppingCart(new LinkedList<ICartItem>());
-		}
+		
 		CartItem item = new CartItem(itemName, quantity, totalPrice);
-		if (pos == null)
+		if (pos == -1)
 			liveCart.addItem(item);
 		else
 			liveCart.insertItem(pos, item);
