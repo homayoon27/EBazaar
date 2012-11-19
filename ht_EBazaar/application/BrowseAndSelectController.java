@@ -20,6 +20,7 @@ import business.SessionContext;
 import business.customersubsystem.CustomerSubsystemFacade;
 import business.externalinterfaces.CustomerConstants;
 import business.externalinterfaces.ICartItem;
+import business.externalinterfaces.ICustomerProfile;
 import business.externalinterfaces.ICustomerSubsystem;
 import business.externalinterfaces.IProductFromDb;
 import business.externalinterfaces.IRules;
@@ -27,6 +28,7 @@ import business.externalinterfaces.IShoppingCart;
 import business.externalinterfaces.IShoppingCartSubsystem;
 import business.productsubsystem.ProductSubsystemFacade;
 import business.shoppingcartsubsystem.ShoppingCartSubsystemFacade;
+import business.util.ShoppingCartUtil;
 import middleware.DatabaseException;
 import middleware.EBazaarException;
 import application.gui.CartItemsWindow;
@@ -80,6 +82,54 @@ public class BrowseAndSelectController implements CleanupControl {
 	 * homay @Nov.18
 	 */
 	class RetrieveCartActionListener implements ActionListener {
+		
+		public void actionPerformed(ActionEvent e) {
+			// if(cartItemsWindow == null){
+			// cartItemsWindow = new CartItemsWindow();
+			// }
+			// EbazaarMainFrame.getInstance().getDesktop().add(cartItemsWindow);
+			// cartItemsWindow.setVisible(true);
+
+			SessionContext context = SessionContext.getInstance();
+
+			if (cartItemsWindow == null) {
+				cartItemsWindow = new CartItemsWindow();
+			}
+			Boolean loggedIn = (Boolean) context.get(CustomerConstants.LOGGED_IN);
+			if (!loggedIn.booleanValue()) {
+				LoginControl loginControl = new LoginControl(cartItemsWindow, mainFrame);
+				loginControl.startLogin();
+			}
+		}
+
+		public void doUpdate() {
+
+			SessionContext context = SessionContext.getInstance();
+			ICustomerSubsystem customer = (ICustomerSubsystem) context
+					.get(CustomerConstants.CUSTOMER);
+			ICustomerProfile customerProfile = customer.getCustomerProfile();
+			IShoppingCartSubsystem shcss = ShoppingCartSubsystemFacade.getInstance();
+			shcss.setCustomerProfile(customerProfile);
+			try {
+				shcss.retrieveSavedCart();
+			} catch (DatabaseException ee) {
+				JOptionPane.showMessageDialog(mainFrame, ee.getMessage(),
+						"Error", JOptionPane.ERROR_MESSAGE);
+			}
+			if (JOptionPane.showConfirmDialog(null,
+					"There is a Saved Shopping Cart. Do you want to use it as live Cart?", "Choose cart"
+					, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION ){
+				shcss.makeSavedCartLive();
+			}
+			List<ICartItem> cartItems = null;
+			cartItems = shcss.getLiveCartItems();
+			List<String[]> cartItemsList = ShoppingCartUtil.cartItemsToStringArrays(cartItems);
+			cartItemsWindow.updateModel(cartItemsList);
+			EbazaarMainFrame.getInstance().getDesktop().add(cartItemsWindow);
+			cartItemsWindow.setVisible(true);
+		}
+		
+/*
 		public void actionPerformed(ActionEvent e) {
 			if (cartItemsWindow == null) {
 				cartItemsWindow = new CartItemsWindow();
@@ -108,17 +158,12 @@ public class BrowseAndSelectController implements CleanupControl {
 				}
 			}
 			else {
-				for (ICartItem ci : items) {
-					String unitPrice 
-						= Double.toString(Double.valueOf(ci.getTotalprice())
-										/Integer.valueOf(ci.getQuantity()));
-					itemList.add(new String[]{ci.getProductName(),ci.getQuantity()
-												, ci.getTotalprice(), unitPrice});
-				}
+				List<String[]> cartItemsList = ShoppingCartUtil.cartItemsToStringArrays(cartItems);
 				cartItemsWindow.updateModel(itemList);
 				cartItemsWindow.setVisible(true);
 			}
 		}
+*/
 	}
 
 	// control of CatalogListWindow
@@ -440,16 +485,23 @@ public class BrowseAndSelectController implements CleanupControl {
 		public void doUpdate() {}
 
 		public void actionPerformed(ActionEvent evt) {
-			SessionContext sctx = SessionContext.getInstance();
-			Boolean loggedIn = (Boolean) sctx.get(CustomerConstants.LOGGED_IN);
+			SessionContext context = SessionContext.getInstance();
+			Boolean loggedIn 
+				= (Boolean) context.get(CustomerConstants.LOGGED_IN);
 			if (!loggedIn.booleanValue()) {
-				LoginControl loginControl = new LoginControl(cartItemsWindow, mainFrame, this);
+				LoginControl loginControl 
+					= new LoginControl(cartItemsWindow, mainFrame);
 				loginControl.startLogin();
-				System.out.println("Successful Login.");
-			} 
-			
+			}
+			ICustomerSubsystem customer 
+					= (ICustomerSubsystem) context.get(CustomerConstants.CUSTOMER);
+			ICustomerProfile customerProfile = customer.getCustomerProfile();
 			IShoppingCartSubsystem shcss = ShoppingCartSubsystemFacade.getInstance();
+			shcss.setCustomerProfile(customerProfile);
 			shcss.saveLiveCart();
+			JOptionPane.showMessageDialog(cartItemsWindow,
+					"Your cart has been saved!", "Message",
+					JOptionPane.PLAIN_MESSAGE);
 		}
 	}
 		

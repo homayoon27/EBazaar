@@ -36,14 +36,15 @@ public class ShoppingCartSubsystemFacade implements IShoppingCartSubsystem {
 	 * homayoon finalized
 	 */
 	public void retrieveSavedCart() throws DatabaseException {
-
-		Integer val = getShoppingCartId();
-		if (val != null) {
-			log.info("Customer saved cart id: " + shopCartId);
-			shopCartId = val;
-			List<ICartItem> items = getCartItems(shopCartId);
-			log.info("list of items: " + items);
-			savedCart = new ShoppingCart(items);
+        
+		Integer cartId = getShoppingCartId();
+		if (cartId != null) {
+	        shopCartId = cartId;
+	        log.info("cart id: "+shopCartId);
+	        List<ICartItem> items = getCartItems(shopCartId);
+	        log.info("list of items: "+items);
+	        savedCart = new ShoppingCart(items);
+	        savedCart.setCartId(shopCartId+"");
 		} else {
 			savedCart = new ShoppingCart();
 		}
@@ -71,7 +72,9 @@ public class ShoppingCartSubsystemFacade implements IShoppingCartSubsystem {
 
 	List<ICartItem> getCartItems(Integer shopCartId) throws DatabaseException {
 		DbClassShoppingCart dbClass = new DbClassShoppingCart();
-		return dbClass.getSavedCartItems(shopCartId);
+		ShoppingCart cart = new ShoppingCart();
+		cart.setCartId(shopCartId+"");
+		return dbClass.getCartItems(cart);
 	}
 
 	// make it a singleton
@@ -95,7 +98,7 @@ public class ShoppingCartSubsystemFacade implements IShoppingCartSubsystem {
 	 */
 	public void addCartItem(String itemName, String quantity, String totalPrice)
 			throws DatabaseException {
-		addCartItem(itemName, quantity, totalPrice, -1);
+		addCartItem(itemName, quantity, totalPrice, null);
 	}
 	public void addCartItem(String itemName, String quantity,
 			String totalPrice, Integer pos) throws DatabaseException {
@@ -105,7 +108,7 @@ public class ShoppingCartSubsystemFacade implements IShoppingCartSubsystem {
 			liveCart = new ShoppingCart(new LinkedList<ICartItem>());
 		
 		CartItem item = new CartItem(itemName, quantity, totalPrice);
-		if (pos == -1)
+		if (pos == null)
 			liveCart.addItem(item);
 		else
 			liveCart.insertItem(pos, item);
@@ -153,14 +156,18 @@ public class ShoppingCartSubsystemFacade implements IShoppingCartSubsystem {
 	}
 
 	public void saveLiveCart() {
-		//IMPLEMENTED 
-		//makeSavedCartLive();
+		DbClassShoppingCart dbClass = new DbClassShoppingCart();
+		dbClass.saveShoppingCart(liveCart, customerProfile);
 	}
 
 	public void runShoppingCartRules() throws RuleException, EBazaarException {
-		if (liveCart == null)
-			liveCart = new ShoppingCart();
+		if(liveCart == null) liveCart=new ShoppingCart();
 		IRules transferObject = new RulesShoppingCart(liveCart);
-		transferObject.runRules();
+		transferObject.runRules();   
 	}
+	public void runFinalOrderRules() throws RuleException, EBazaarException {
+		IRules transferObject = new RulesFinalOrder(liveCart);
+		transferObject.runRules(); 
+	}
+
 }

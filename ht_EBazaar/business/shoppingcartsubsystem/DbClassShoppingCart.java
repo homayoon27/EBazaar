@@ -8,6 +8,8 @@ import java.util.LinkedList;
 import java.util.List; 
 import java.util.logging.Logger;
 
+import javax.swing.JOptionPane;
+
 import static business.util.StringParse.*;
 
 import business.*;
@@ -15,6 +17,7 @@ import business.externalinterfaces.IAddress;
 import business.externalinterfaces.ICartItem;
 import business.externalinterfaces.ICreditCard;
 import business.externalinterfaces.ICustomerProfile;
+import business.externalinterfaces.IShoppingCart;
 import middleware.DatabaseException;
 import middleware.DbConfigProperties;
 import middleware.dataaccess.DataAccessSubsystemFacade;
@@ -32,7 +35,7 @@ public class DbClassShoppingCart implements IDbClass {
     List<ICartItem> cartItemsList;
     ICartItem curItem; // homayoon @Nov.17
     ICustomerProfile custProfile;
-    Integer cartId;
+    //Integer cartId;
     
     String query;
     final String GET_ID="GetId";
@@ -144,7 +147,7 @@ public class DbClassShoppingCart implements IDbClass {
                 + ",'shipmentcost'"
                 + ",'taxamount'"
                 + ") VALUES ("
-                + Integer.toString(cartId)
+                + cart.getCartId()
                 + ", 0, 0, 0, 0, 0"
                 + ");"
                 ;
@@ -163,7 +166,7 @@ public class DbClassShoppingCart implements IDbClass {
     	//IMPLEMENTED
         query = "SELECT * " +
         		"FROM AccountsDb.ShopCartItem " +
-        		"WHERE shopcartid= " + this.cartId;
+        		"WHERE shopcartid= " + cart.getCartId();
     }
     
     /*
@@ -174,12 +177,13 @@ public class DbClassShoppingCart implements IDbClass {
         this.custProfile = custProfile;
         queryType = GET_ID;
         dataAccessSS.atomicRead(this);
-        return cartId;
+        return Integer.valueOf(cart.getCartId());
     }
     /*
      * homayoon @Nov.17
      */    
-    private void saveShoppingCart() throws DatabaseException {
+    private void saveShoppingCart(ShoppingCart shcart) throws DatabaseException {
+    	this.cart = shcart;
     	dataAccessSS.createConnection(this);
     	queryType = DELETE_CART;
     	dataAccessSS.delete();
@@ -192,12 +196,14 @@ public class DbClassShoppingCart implements IDbClass {
     /*
      * homayoon @Nov.17
      */    
-    public Integer saveShoppingCartItems(ICustomerProfile custProfile) throws DatabaseException {
+    public Integer saveShoppingCart(ShoppingCart cart, ICustomerProfile custProfile) {
         this.custProfile = custProfile;
-        dataAccessSS.createConnection(this);
-        dataAccessSS.startTransaction();
         try {
-        	saveShoppingCart();
+            dataAccessSS.createConnection(this);
+            dataAccessSS.startTransaction();
+        	if (cart.getCartId() == null)
+        		saveShoppingCart(cart);
+        	
         	queryType = SAVE_CART_ITEM;
             for (ICartItem ci : cartItemsList) {
             	if (!ci.isAlreadySaved()) {
@@ -206,19 +212,24 @@ public class DbClassShoppingCart implements IDbClass {
             	}
             }
             dataAccessSS.commit();
-         }
+        }
+        catch(DatabaseException dbe){
+			String errMsg = "Database inaccessible: " + dbe.getMessage();
+			JOptionPane.showMessageDialog(null, errMsg, "Error",
+					JOptionPane.ERROR_MESSAGE);				        
+		}		
         finally {
         	dataAccess.releaseConnection(this);
         }
         
-        return cartId;
+        return Integer.valueOf(cart.getCartId());
     }
     
     /*
      * homayoon @Nov.17
      */   
-    public List<ICartItem> getSavedCartItems(Integer cartId) throws DatabaseException {
-    	this.cartId = cartId;
+    public List<ICartItem> getCartItems(ShoppingCart shcart) throws DatabaseException {
+    	this.cart = shcart;
     	queryType = GET_SAVED_ITEMS;
     	dataAccessSS.atomicRead(this);
         return cartItemsList;
@@ -234,6 +245,7 @@ public class DbClassShoppingCart implements IDbClass {
     }
 
     private void populateShopCartId(ResultSet rs){
+    	int cartId=-1;
         try {
             if(rs.next()){
                 cartId = rs.getInt("shopcartid");
@@ -241,7 +253,11 @@ public class DbClassShoppingCart implements IDbClass {
         }
         catch(SQLException e){
             //do nothing
-        }   
+        } 
+        finally {
+        	cart = new ShoppingCart();
+        	cart.setCartId(cartId+"");
+        }
     }
     
     /*
