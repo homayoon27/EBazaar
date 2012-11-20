@@ -45,7 +45,8 @@ public class ShoppingCartSubsystemFacade implements IShoppingCartSubsystem {
 	        log.info("list of items: "+items);
 	        savedCart = new ShoppingCart(items);
 	        savedCart.setCartId(shopCartId+"");
-		} else {
+		} 
+		else {
 			savedCart = new ShoppingCart();
 		}
 		

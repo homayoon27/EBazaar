@@ -26,7 +26,7 @@ import middleware.externalinterfaces.IDbClass;
 import middleware.externalinterfaces.DbConfigKey;
 
 
-public class DbClassShoppingCart implements IDbClass {
+public class DbClassShoppingCart implements DbClassShoppingCartTest {//IDbClass {
 	private static final Logger LOG = Logger.getLogger(DbClassShoppingCart.class
 			.getPackage().getName());
 	private IDataAccessSubsystem dataAccessSS = new DataAccessSubsystemFacade();

@@ -11,7 +11,7 @@ import business.externalinterfaces.ICreditCard;
 import business.externalinterfaces.IShoppingCart;
 
 
-class ShoppingCart implements IShoppingCart {
+public class ShoppingCart implements IShoppingCart {
     private String cartId;
     private List<ICartItem> cartItems;
     private IAddress shipAddress;

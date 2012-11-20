@@ -1,0 +1,59 @@
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/pcorazza/!svn/ver/685/swe/swe_0612/red/TestEBazaar
+END
+.classpath
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/pcorazza/!svn/ver/686/swe/swe_0612/red/TestEBazaar/.classpath
+END
+payment-rules.clp
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/pcorazza/!svn/ver/686/swe/swe_0612/red/TestEBazaar/payment-rules.clp
+END
+handler.txt.lck
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/pcorazza/!svn/ver/686/swe/swe_0612/red/TestEBazaar/handler.txt.lck
+END
+quantity-rules.clp
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/pcorazza/!svn/ver/686/swe/swe_0612/red/TestEBazaar/quantity-rules.clp
+END
+.project
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/pcorazza/!svn/ver/686/swe/swe_0612/red/TestEBazaar/.project
+END
+shopcart-rules.clp
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/pcorazza/!svn/ver/686/swe/swe_0612/red/TestEBazaar/shopcart-rules.clp
+END
+address-rules.clp
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/pcorazza/!svn/ver/686/swe/swe_0612/red/TestEBazaar/address-rules.clp
+END
+finalorder-rules.clp
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/pcorazza/!svn/ver/686/swe/swe_0612/red/TestEBazaar/finalorder-rules.clp
+END
+handler.txt
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/pcorazza/!svn/ver/686/swe/swe_0612/red/TestEBazaar/handler.txt
+END
