@@ -67,6 +67,37 @@ public class DbQueries {
 	 * 1 - product id
 	 * 2 - product name
 	 */
+	/*
+	 * homayoon @Nov19
+	 */
+	public static int retrieveShoppingCard() {
+		int cartId = 0;
+		String query = getCartSql();
+		System.out.println(query);		
+		try {
+			stmt = acctCon.createStatement();
+			ResultSet rs= stmt.executeQuery(query);
+			if(rs.next()) {
+				cartId = Integer.parseInt(rs.getString("shopcartid"));
+			}
+			stmt.close();
+			
+		}
+		catch(SQLException e) {
+			e.printStackTrace();
+		}
+		return cartId;
+	}
+	public static String getCartSql() {
+		return "SELECT * FROM ShopCartTbl WHERE custid=1;";
+	}
+
+	/**
+	 * Returns a String[] with values:
+	 * 0 - query
+	 * 1 - product id
+	 * 2 - product name
+	 */
 	public static String[] insertProductRow() {
 		String[] vals = saveProductSql();
 		String query = vals[0];
