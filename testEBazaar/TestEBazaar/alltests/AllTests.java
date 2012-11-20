@@ -13,8 +13,8 @@ import junit.framework.TestSuite;
 
 public class AllTests extends TestSuite {
     static Logger log = Logger.getLogger(AllTests.class.getName());
-    private static final String LOC_DB_PROPS = "\\resources\\dbconfig.properties";
-    private static final String LOC_RULES_PROPS = "\\resources\\rulesconfig.properties";
+    private static final String LOC_DB_PROPS = "\\TestEBazaar\\resources\\dbconfig.properties";
+    private static final String LOC_RULES_PROPS = "\\TestEBazaar\\resources\\rulesconfig.properties";
     private static final String context = computeDir();
     static {
     	initializeProperties();

@@ -31,7 +31,6 @@ public class BrowseAndSelectTest extends TestCase {
         
 		try {
 			catNames = pss.getCatalogNames();
-                
 		}
 		catch(DatabaseException ex){
 			fail("DatabaseException: " + ex.getMessage());
@@ -43,7 +42,6 @@ public class BrowseAndSelectTest extends TestCase {
 				for (String[] next : catNames) {
 					if(next[0].equals(expectedName)) {
 						nameFound=true;
-						System.out.println(next[0]);
 						break;
 					}
 				}
