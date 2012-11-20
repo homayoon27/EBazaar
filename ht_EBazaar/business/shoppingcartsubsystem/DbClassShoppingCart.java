@@ -26,11 +26,11 @@ import middleware.externalinterfaces.IDbClass;
 import middleware.externalinterfaces.DbConfigKey;
 
 
-public class DbClassShoppingCart implements DbClassShoppingCartTest {//IDbClass {
+public class DbClassShoppingCart implements IDbClass {
 	private static final Logger LOG = Logger.getLogger(DbClassShoppingCart.class
 			.getPackage().getName());
 	private IDataAccessSubsystem dataAccessSS = new DataAccessSubsystemFacade();
-    IDataAccessSubsystem dataAccess;
+    //IDataAccessSubsystem dataAccess;
     ShoppingCart cart;
     List<ICartItem> cartItemsList;
     ICartItem curItem; // homayoon @Nov.17
@@ -190,7 +190,7 @@ public class DbClassShoppingCart implements DbClassShoppingCartTest {//IDbClass 
     	
     	queryType = SAVE_CART;
     	dataAccessSS.save();
-    	dataAccess.releaseConnection(this);
+    	dataAccessSS.releaseConnection(this);
     }
     
     /*
@@ -219,7 +219,7 @@ public class DbClassShoppingCart implements DbClassShoppingCartTest {//IDbClass 
 					JOptionPane.ERROR_MESSAGE);				        
 		}		
         finally {
-        	dataAccess.releaseConnection(this);
+        	dataAccessSS.releaseConnection(this);
         }
         
         return Integer.valueOf(cart.getCartId());

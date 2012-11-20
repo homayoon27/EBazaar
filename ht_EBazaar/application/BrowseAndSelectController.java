@@ -27,6 +27,7 @@ import business.externalinterfaces.IRules;
 import business.externalinterfaces.IShoppingCart;
 import business.externalinterfaces.IShoppingCartSubsystem;
 import business.productsubsystem.ProductSubsystemFacade;
+import business.shoppingcartsubsystem.RulesShoppingCart;
 import business.shoppingcartsubsystem.ShoppingCartSubsystemFacade;
 import business.util.ShoppingCartUtil;
 import middleware.DatabaseException;
@@ -91,7 +92,7 @@ public class BrowseAndSelectController implements CleanupControl {
 			}
 			Boolean loggedIn = (Boolean) context.get(CustomerConstants.LOGGED_IN);
 			if (!loggedIn.booleanValue()) {
-				LoginControl loginControl = new LoginControl(cartItemsWindow, mainFrame);
+				LoginControl loginControl = new LoginControl(cartItemsWindow, mainFrame, this);
 				loginControl.startLogin();
 			}
 			else
@@ -241,16 +242,18 @@ public class BrowseAndSelectController implements CleanupControl {
 	class AddCartItemListener implements ActionListener {
 		public void actionPerformed(ActionEvent evt) {
 			productDetailsWindow.setVisible(false);
-			quantityWindow = new QuantityWindow(false, null);
+			if (quantityWindow==null) {
+				quantityWindow = new QuantityWindow(false, null);
+				EbazaarMainFrame.getInstance().getDesktop().add(quantityWindow);
+			}
+			quantityWindow.setParentWindow(productDetailsWindow);
 			JTable table = cartItemsWindow.getTable();
 			int selectedRow = table.getSelectedRow();
 			String qty = "1";
 			if (selectedRow >= 0)
 				qty = (String) table.getValueAt(selectedRow, 1);
 			quantityWindow.setQuantityDesired(Integer.valueOf(qty));
-			EbazaarMainFrame.getInstance().getDesktop().add(quantityWindow);
 			quantityWindow.setVisible(true);
-			quantityWindow.setParentWindow(productDetailsWindow);
 		}
 	}
 	/*
@@ -430,6 +433,8 @@ public class BrowseAndSelectController implements CleanupControl {
 			// user has been looking at this product list
 			if (productListWindow != null) {
 				productListWindow.setVisible(true);
+				EbazaarMainFrame.getInstance().getDesktop()
+				.add(catalogListWindow);
 			}
 			// user has just retrieved saved cart
 			else {
@@ -437,8 +442,8 @@ public class BrowseAndSelectController implements CleanupControl {
 					catalogListWindow.dispose();
 				}
 				catalogListWindow = new CatalogListWindow();
-				EbazaarMainFrame.getInstance().getDesktop()
-						.add(catalogListWindow);
+				EbazaarMainFrame.getInstance().getDesktop().add(catalogListWindow);
+				((BrowseAndSelectController.getInstance()).getNewOnlinePurchaseListener(mainFrame)).actionPerformed(null);
 				catalogListWindow.setVisible(true);
 			}
 		}
@@ -474,7 +479,28 @@ public class BrowseAndSelectController implements CleanupControl {
 					ICustomerProfile customerProfile = customer.getCustomerProfile();
 			IShoppingCartSubsystem shcss = ShoppingCartSubsystemFacade.getInstance();
 			shcss.setCustomerProfile(customerProfile);
-			shcss.saveLiveCart();
+			IShoppingCart liveCart = shcss.getLiveCart();
+			/*
+			 * homayoon @Nov.20
+			 */
+			boolean err = false;
+			IRules rules = new RulesShoppingCart(liveCart);
+			try {
+				rules.runRules();
+			} catch (RuleException re) {
+				String errMsg = "Rules dosn't match: " + re.getMessage();
+				JOptionPane.showMessageDialog(quantityWindow, errMsg, "Error",
+						JOptionPane.ERROR_MESSAGE);	
+				err = true;
+			} catch (EBazaarException ee) {
+				String errMsg = "EBazaar exception: " + ee.getMessage();
+				JOptionPane.showMessageDialog(quantityWindow, errMsg, "Error",
+						JOptionPane.ERROR_MESSAGE);	
+				err = true;
+			}
+			if (err == false)
+				shcss.saveLiveCart();
+		
 			JOptionPane.showMessageDialog(cartItemsWindow,
 					"Your cart has been saved!", "Message",
 					JOptionPane.PLAIN_MESSAGE);

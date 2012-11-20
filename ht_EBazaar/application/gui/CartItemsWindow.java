@@ -192,6 +192,7 @@ public class CartItemsWindow extends JInternalFrame implements ParentWindow {
 		if (model == null) {
 			model = new CustomTableModel();
 		}
+		System.out.println("*****cartItemsList2*****"+list);		
 		model.setTableValues(list);
 	}
 
