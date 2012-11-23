@@ -41,6 +41,7 @@ public class DbClassShoppingCartTest extends TestCase {
 
 		IShoppingCartSubsystem shcss = ShoppingCartSubsystemFacade.getInstance();
 		ICustomerSubsystem css = new CustomerSubsystemFacade();
+		System.out.println("**** Step0 ****"+css);
 		try {
 			css.initializeCustomer(1);
 		} catch (DatabaseException e1) {
@@ -50,6 +51,7 @@ public class DbClassShoppingCartTest extends TestCase {
 		ICustomerProfile cp = css.getCustomerProfile();
 		cp.setCustId(1);
 		shcss.setCustomerProfile(cp);
+		System.out.println("**** CustomerProfile ****"+cp);
 		try {
 			shcss.retrieveSavedCart();
 		} catch (DatabaseException e) {
