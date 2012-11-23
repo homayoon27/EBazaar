@@ -239,19 +239,16 @@ public class BrowseAndSelectController implements CleanupControl {
 	}
 
 	// ///// control ProductDetails
+	/*
+	 * homayoon @Nov.22
+	 */
 	class AddCartItemListener implements ActionListener {
 		public void actionPerformed(ActionEvent evt) {
 			productDetailsWindow.setVisible(false);
-			if (quantityWindow==null) {
-				quantityWindow = new QuantityWindow(false, null);
-				EbazaarMainFrame.getInstance().getDesktop().add(quantityWindow);
-			}
+			quantityWindow = new QuantityWindow(false, null);
+			EbazaarMainFrame.getInstance().getDesktop().add(quantityWindow);
 			quantityWindow.setParentWindow(productDetailsWindow);
-			JTable table = cartItemsWindow.getTable();
-			int selectedRow = table.getSelectedRow();
 			String qty = "1";
-			if (selectedRow >= 0)
-				qty = (String) table.getValueAt(selectedRow, 1);
 			quantityWindow.setQuantityDesired(Integer.valueOf(qty));
 			quantityWindow.setVisible(true);
 		}
@@ -500,7 +497,7 @@ public class BrowseAndSelectController implements CleanupControl {
 			}
 			if (err == false)
 				shcss.saveLiveCart();
-		
+			
 			JOptionPane.showMessageDialog(cartItemsWindow,
 					"Your cart has been saved!", "Message",
 					JOptionPane.PLAIN_MESSAGE);

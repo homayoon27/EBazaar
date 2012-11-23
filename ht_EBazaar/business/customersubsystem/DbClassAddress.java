@@ -60,8 +60,7 @@ class DbClassAddress implements IDbClass {
 		//dataAccessSS.read();
 	}
 
-	void readAllAddresses(ICustomerProfile custProfile)
-			throws DatabaseException {
+	void readAllAddresses(ICustomerProfile custProfile)throws DatabaseException {
 		// IMPLEMENTED
 		this.custProfile = custProfile;
 		queryType = READ;

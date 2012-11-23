@@ -201,7 +201,7 @@ public class DbClassShoppingCart implements IDbClass {
         try {
             dataAccessSS.createConnection(this);
             dataAccessSS.startTransaction();
-        	if (cart.getCartId() == null)
+        	if (cart.getCartId() != null)
         		saveShoppingCart(cart);
         	
         	queryType = SAVE_CART_ITEM;
